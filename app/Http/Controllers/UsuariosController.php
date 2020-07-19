@@ -36,26 +36,23 @@ class UsuariosController extends Controller
       return response()->json(Usuarios::all()->where('empresa','like',$empresa)->where('email','like',$email)->values());       
        
     }
-    /*function listPorEmpresaEmail($empresa,$email){
-        return response()->json(Usuarios::all()->where('empresa','like',$empresa)->where('email','like',$email)->values());       
-    }*/
-
+    
    function delete(Request $request){
        $email=$request->email;
        $empresa=$request->empresa;
        //dd($email);
-    //app('db')->enableQueryLog();
-    $user = Usuarios::where('empresa','like',$empresa)->where('email','like',$email);
-    //dd(app('db')->getQueryLog());
-    //app('db')->disableQueryLog();
-    //dd($user);
-    $user2=$user;
+        $user = Usuarios::where('empresa','like',$empresa)->where('email','like',$email);
+        dd($user);
+    //**ARREGLAR**Problema el $user ni es nulo ni esta vacio cuando intentamos borrar un  usuario que no existe,
+    //por lo que siempre dice que el usuario se borro exitosamente
     if(is_null($user)){
         return response()->json(['message' => 'No existe el usuario'], 200);
     }
+    $user2=$user;
+    //dd($user2);
     $user->delete();
-    //**Arreglar que muestre en elmensaje de exito el u suario eliminado**
-    return response()->json(['message' => 'User eliminado con exito','deleteUser'=>$user2], 200);
+    //**ARREGLAR** que muestre en elmensaje de exito el usuario eliminado**
+    return response()->json(['message' => 'User eliminado con exito','Email'=>$email], 200);
    }
 
     ////**NO FUNCIONA **
