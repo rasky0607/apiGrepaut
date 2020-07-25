@@ -18,6 +18,7 @@ class CreateTableEmpresas extends Migration
             $table->primary('nombre');//Declaracion de la clave primaria o primary key de la tabla
             $table->string('direccion');
             $table->string('tlf',13);//Ya que  un numero de tlf suele tener 9 digitos, pero puede que se le añada prefijos como +34(España) o +376(Andorra)
+            $table->timestamps();
         });
     }
 

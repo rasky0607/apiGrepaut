@@ -18,6 +18,7 @@ class CreateTableServicios extends Migration
             $table->string('empresa');//Creamos columna para la clave ajena
             $table->double('precio',10,2);//este double tiene precision dos decimales
             $table->string('descripcion')->nullable();//Este campo puede ser nullo o vacio
+            $table->timestamps();
             $table->foreign('empresa')->references('nombre')->on('empresas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla empresas 
             $table->primary(['nombre','empresa']);//Declaracion de la clave conpuesta o primary key de la tabla
         });

@@ -19,7 +19,8 @@ class CreateTableFacturas extends Migration
 		$table->date('fecha');
 		$table->enum('tipo',['vigente','anulada']);
 		$table->foreign('idreparacion')->references('id')->on('reparaciones')->onUpdate('cascade');//Referencia de la clave ajena de la tabla reparaciones
-		$table->integer('numeroanulada',false,true)->nullable();//clave ajena con sigo misma  que puede ser nula, ya que referenica a una factura anterior anulada
+        $table->integer('numeroanulada',false,true)->nullable();//clave ajena con sigo misma  que puede ser nula, ya que referenica a una factura anterior anulada
+        $table->timestamps();
 		//$table->foreign('numeroanulada')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena reflexiva de la propia tabla facturas
 		$table->primary(['numero','idreparacion']);//Declaracion de la clave conpuesta o primary key de la tabla
 		

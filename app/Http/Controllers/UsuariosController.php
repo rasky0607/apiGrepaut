@@ -11,6 +11,7 @@ class UsuariosController extends Controller
 {
    function add(Request $request){
     $user = Usuarios::create([
+        'id'=>$request->id,
         'email'=>$request->email,
         'password'=>$request->password,
         'empresa'=>$request->empresa,
@@ -38,33 +39,30 @@ class UsuariosController extends Controller
     }
     
    function delete(Request $request){
-        $email=$request->email;
-        $empresa=$request->empresa;   
-        $user = Usuarios::where('empresa','like',$empresa)->where('email','like',$email);
+        $id=$request->id;   
+        $user = Usuarios::where('id',$id)->first();
         //Si no encontro usuarios
-        if($user->count()==0){
-            return response()->json(['message' => 'No existe el usuario','Email'=>$email], 200);
+        if(is_null($user)){
+            return response()->json(['message' => 'No existe el usuario'], 200);
         }
-        //Si econtro un usuario
-        if($user->count()==1){
+        //Si econtro un usuario      
             $user->delete();
-            return response()->json(['message' => 'User eliminado con exito','Email'=>$email], 200);
-        }
-        //En cualquier otro caso lanza mensaje de error
-        return response()->json(['message' => 'Error al borrar el usuario con Email',$email], 404);
+            return response()->json(['message' => 'User eliminado con exito','usuario'=>$user], 200);
+          
    }
 
-    ////**NO FUNCIONA **
-   function update(Request $request,$email,$empresa){
-    $user= Usuarios::where('empresa','like',$empresa)->where('email','like',$email);
+    //Funciona pero tenemos que poner otro update en el caso de que queramos actualizar solo uno de los campos no todos
+   function update(Request $request,$id){
+    $user= Usuarios::findOrFail($id);
     $user->update([
         'email'=>$request->email,
-        'empresa'=>$request->empresa,
-        'nombre'=>$request->nombre
+        'nombre'=>$request->nombre,
+        'tipo'=>$request->tipo,
+        'tienePermiso'=>$request->tienePermiso
 
 
     ]);
-    return response()->json(['message' => 'User update Successfully','userUpdate'=>$user], 200);
+    return response()->json(['message' => 'Usuario actualizado con exito','usuario'=>$user], 200);
    }
 
 

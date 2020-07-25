@@ -21,7 +21,7 @@ $router->group(['prefix' => 'usuario'], function () use ($router) {
     $router->get('/{empresa}[/{email}]', ['uses'=> 'UsuariosController@listPorEmpresa']);//Lo que esta etre corchetes es opcional es decir puede ser nulo
     //$router->delete('/{empresa}/{email}', ['uses'=> 'UsuariosController@midelete']);
     $router->delete('/', ['uses'=> 'UsuariosController@delete']);
-    $router->put('/{empresa}{email}', ['uses'=> 'UsuariosController@update']);
+    $router->put('/{id}', ['uses'=> 'UsuariosController@update']);
     
 
 });
