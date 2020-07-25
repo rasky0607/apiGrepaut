@@ -38,26 +38,25 @@ class UsuariosController extends Controller
     }
     
    function delete(Request $request){
-       $email=$request->email;
-       $empresa=$request->empresa;
-       //dd($email);
+        $email=$request->email;
+        $empresa=$request->empresa;   
         $user = Usuarios::where('empresa','like',$empresa)->where('email','like',$email);
-        dd($user);
-    //**ARREGLAR**Problema el $user ni es nulo ni esta vacio cuando intentamos borrar un  usuario que no existe,
-    //por lo que siempre dice que el usuario se borro exitosamente
-    if(is_null($user)){
-        return response()->json(['message' => 'No existe el usuario'], 200);
-    }
-    $user2=$user;
-    //dd($user2);
-    $user->delete();
-    //**ARREGLAR** que muestre en elmensaje de exito el usuario eliminado**
-    return response()->json(['message' => 'User eliminado con exito','Email'=>$email], 200);
+        //Si no encontro usuarios
+        if($user->count()==0){
+            return response()->json(['message' => 'No existe el usuario','Email'=>$email], 200);
+        }
+        //Si econtro un usuario
+        if($user->count()==1){
+            $user->delete();
+            return response()->json(['message' => 'User eliminado con exito','Email'=>$email], 200);
+        }
+        //En cualquier otro caso lanza mensaje de error
+        return response()->json(['message' => 'Error al borrar el usuario con Email',$email], 404);
    }
 
     ////**NO FUNCIONA **
    function update(Request $request,$email,$empresa){
-    $user=Usuarios::where('email',$email)->where('empresa',$empresa)->first();
+    $user= Usuarios::where('empresa','like',$empresa)->where('email','like',$email);
     $user->update([
         'email'=>$request->email,
         'empresa'=>$request->empresa,
