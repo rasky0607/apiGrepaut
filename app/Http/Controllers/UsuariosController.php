@@ -11,23 +11,20 @@ class UsuariosController extends Controller
 {
    function add(Request $request){
     $user = Usuarios::create([
-        'id'=>$request->id,
+        //'id'=>$request->id,
         'email'=>$request->email,
         'password'=>$request->password,
         'empresa'=>$request->empresa,
         'nombre'=>$request->nombre,
         'tipo'=>$request->tipo,
-        'tienePermiso'=>$request->tienePermiso
+        'tienePermiso'=>$request->tienePermiso,
+        'token'=>Str::random(10)
     ]);
-    return response()->json($user,201);
+    return response()->json(['message' =>'User registrado con exito','usuario'=>$user],201);
    }
 
     function list(){
         return response()->json(Usuarios::all());
-
-        //**FUNCIONA **
-        //$result=app('db')->select("SELECT * FROM usuarios");
-        //return response()->json($result);
    }
 
    function listPorEmpresa($empresa,$email=null){
@@ -51,18 +48,44 @@ class UsuariosController extends Controller
           
    }
 
-    //Funciona pero tenemos que poner otro update en el caso de que queramos actualizar solo uno de los campos no todos
+    //Actualiza los campos que llegan diferentes de null
    function update(Request $request,$id){
-    $user= Usuarios::findOrFail($id);
-    $user->update([
-        'email'=>$request->email,
-        'nombre'=>$request->nombre,
-        'tipo'=>$request->tipo,
-        'tienePermiso'=>$request->tienePermiso
+        $user= Usuarios::findOrFail($id);
+        $email=$request->email;
+        $nombre=$request->nombre;
+        $tipo=$request->tipo;
+        $tienePermiso=$request->tienePermiso;
+        //dd($email);
+        if($email!=null){
+            $user->update([
+                'email'=>$email
+            ]);
+        }
 
+        if($nombre!=null){
+            $user->update([
+                'nombre'=>$nombre
+            ]);
+        }
 
-    ]);
-    return response()->json(['message' => 'Usuario actualizado con exito','usuario'=>$user], 200);
+        if($nombre!=null){
+            $user->update([
+                'nombre'=>$nombre
+            ]);
+        }
+
+        if($tipo!=null){
+            $user->update([
+                'tipo'=>$tipo
+            ]);
+        }
+
+        if($tienePermiso!=null){
+            $user->update([
+                'tipo'=>$tienePermiso
+            ]);
+        }
+        return response()->json(['message' => 'Usuario actualizado con exito','usuario'=>$user], 200);
    }
 
 

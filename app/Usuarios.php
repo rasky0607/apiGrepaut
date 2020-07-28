@@ -18,7 +18,7 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id','email', 'password','empresa','nombre','tipo','tienePermiso'
+        'id','email', 'password','empresa','nombre','tipo','tienePermiso','token'
     ];
 
     /**
@@ -27,6 +27,6 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $hidden = [
-        'updated_at', 'password',
+        'updated_at', 'password','token',
     ];
 }
