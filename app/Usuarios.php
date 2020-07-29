@@ -18,7 +18,7 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id','email', 'password','empresa','nombre','tipo','tienePermiso','token'
+        'id','email', 'password','nombre','token'
     ];
 
     /**

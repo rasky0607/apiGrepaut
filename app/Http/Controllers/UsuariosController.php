@@ -14,10 +14,7 @@ class UsuariosController extends Controller
         //'id'=>$request->id,
         'email'=>$request->email,
         'password'=>$request->password,
-        'empresa'=>$request->empresa,
-        'nombre'=>$request->nombre,
-        'tipo'=>$request->tipo,
-        'tienePermiso'=>$request->tienePermiso,
+        'nombre'=>$request->nombre,     
         'token'=>Str::random(10)
     ]);
     return response()->json(['message' =>'User registrado con exito','usuario'=>$user],201);
@@ -27,6 +24,7 @@ class UsuariosController extends Controller
         return response()->json(Usuarios::all());
    }
 
+   //###Modificar#### ya que la tabla usuarios ya no tiene la empresa
    function listPorEmpresa($empresa,$email=null){
       if(is_null($email))
         return response()->json(Usuarios::all()->where('empresa','like',$empresa)->values());
@@ -53,8 +51,7 @@ class UsuariosController extends Controller
         $user= Usuarios::findOrFail($id);
         $email=$request->email;
         $nombre=$request->nombre;
-        $tipo=$request->tipo;
-        $tienePermiso=$request->tienePermiso;
+        $password=$request->password;
         //dd($email);
         if($email!=null){
             $user->update([
@@ -74,17 +71,13 @@ class UsuariosController extends Controller
             ]);
         }
 
-        if($tipo!=null){
+        if($password!=null){
             $user->update([
-                'tipo'=>$tipo
+                'password'=>$password
             ]);
         }
 
-        if($tienePermiso!=null){
-            $user->update([
-                'tipo'=>$tienePermiso
-            ]);
-        }
+        
         return response()->json(['message' => 'Usuario actualizado con exito','usuario'=>$user], 200);
    }
 

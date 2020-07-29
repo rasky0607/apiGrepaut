@@ -13,7 +13,7 @@ class CreateTableLineasFacturas extends Migration
      */
     public function up()
     {
-        Schema::create('lineasfacturas', function (Blueprint $table) {
+        Schema::create('lineasFacturas', function (Blueprint $table) {
             $table->integer('numerofactura',false,true);//clave ajena de la tabla Facturas (clave primaria)
             $table->integer('idreparacionfacturada',false,true);//clave ajena de la tabla Facturas (clave primaria)
             $table->integer('linea', false, true);//Numero de linea de la factura (clave primaria)
@@ -29,9 +29,9 @@ class CreateTableLineasFacturas extends Migration
             $table->foreign('numerofactura')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  facturas
             $table->primary(['linea','numerofactura','idreparacionfacturada']);//Declaracion de la clave conpuesta o primary key de la tabla
         });
-	//Modificamos la clave a  una clave compuesta con un autoincremental (es la mejor forma que encontre de hacerlo en lumen),ya que increments convierte el campo autamticamente en clave primaria
-	// y peta al  indicarle abajo que es compuesta, por lo que debemos borrarla y volver a crearla
-	//DB::unprepared('ALTER TABLE `lineasfacturas` DROP PRIMARY KEY, ADD PRIMARY KEY ( `linea` , `numerofactura` ,`idreparacionfacturada`)');//Ejemplo de clave compuesta con un autincrement
+        //Modificamos la clave a  una clave compuesta con un autoincremental (es la mejor forma que encontre de hacerlo en lumen),ya que increments convierte el campo autamticamente en clave primaria
+	    // y peta al  indicarle abajo que es compuesta, por lo que debemos borrarla y volver a crearla
+	    //DB::unprepared('ALTER TABLE `lineasfacturas` DROP PRIMARY KEY, ADD PRIMARY KEY ( `linea` , `numerofactura` ,`idreparacionfacturada`)');//Ejemplo de clave compuesta con un autincrement
     }
 
     /**
@@ -41,6 +41,6 @@ class CreateTableLineasFacturas extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lineasfacturas');
+        Schema::dropIfExists('lineasFacturas');
     }
 }
