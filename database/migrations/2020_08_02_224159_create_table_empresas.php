@@ -14,8 +14,8 @@ class CreateTableEmpresas extends Migration
     public function up()
     {
         Schema::create('empresas', function (Blueprint $table) {
-            $table->string('nombre');
-            $table->primary('nombre');//Declaracion de la clave primaria o primary key de la tabla
+            $table->id();
+            $table->string('nombre')->unique();
             $table->string('direccion');
             $table->string('tlf',13);//Ya que  un numero de tlf suele tener 9 digitos, pero puede que se le añada prefijos como +34(España) o +376(Andorra)
             $table->timestamps();

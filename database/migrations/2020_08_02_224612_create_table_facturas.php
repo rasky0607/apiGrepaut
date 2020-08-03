@@ -24,10 +24,12 @@ class CreateTableFacturas extends Migration
             //$table->foreign('numeroanulada')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena reflexiva de la propia tabla facturas
             $table->primary(['numero','idreparacion']);//Declaracion de la clave conpuesta o primary key de la tabla
         });
+
         //Creamos una clave compuesta con un autoincremental (es la mejor forma que encontre de hacerlo en lumen),ya que increments convierte el campo autamticamente en clave primaria
         // y peta al  indicarle abajo que es compuesta, por lo que debemos borrarla y volver a crearla
         //DB::unprepared('ALTER TABLE `facturas` DROP PRIMARY KEY, ADD PRIMARY KEY ( `numero` , `idreparacion`)');//Ejemplo de clave compuesta con u n autincrement
         DB::unprepared('ALTER TABLE `facturas`ADD CONSTRAINT `numeroanulada_fk` FOREIGN KEY (numeroanulada) REFERENCES `facturas`(numero) ON UPDATE CASCADE ON DELETE RESTRICT ');
+        
     }
 
     /**

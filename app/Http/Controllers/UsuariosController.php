@@ -5,37 +5,55 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Usuarios;
 use Illuminate\Support\Str;
-
+//Añadido
+use App\Http\Controllers\DB as DB;
 
 class UsuariosController extends Controller
 {
    function add(Request $request){
-    $user = Usuarios::create([
-        //'id'=>$request->id,
-        'email'=>$request->email,
-        'password'=>$request->password,
-        'nombre'=>$request->nombre,     
-        'token'=>Str::random(10)
+       //Comprobacion de email
+       $email = $request->email;
+       if(!$this->validarcorreo($email))
+        return response()->json(['Error' =>'El email usado no es correcto','Email'=>$email],201);
+
+        $user = Usuarios::create([
+            'email'=>$request->email,
+            'password'=>$request->password,
+            'nombre'=>$request->nombre,     
+            'token'=>Str::random(10)
     ]);
-    return response()->json(['message' =>'User registrado con exito','usuario'=>$user],201);
+    return response()->json(['message' =>'User registrado con exito','usuario'=>$user],200);
    }
 
-    function list(){
-        return response()->json(Usuarios::all());
+   //Lista todos los usuarios
+    function list(){          
+        return response()->json(Usuarios::all());   
+   }
+
+   //Busca un usuario concreto o con correos que empiecen igual al indicado
+   function buscarUsuario($email){
+    app('db')->enableQueryLog();//Activar registro de querys
+    $usuario=Usuarios::where('email','like',urldecode($email).'%')->get();
+    if(sizeof($usuario)<=0){     
+        return response()->json(['message' => 'No existe el usuario','Usuario con email:'=>urldecode($email)], 200);
+    }
+    else
+    {      
+        return response()->json(['Usuario:'=>$usuario], 200);
+    }
    }
 
    //###Modificar#### ya que la tabla usuarios ya no tiene la empresa
-   function listPorEmpresa($empresa,$email=null){
+   /*function listPorEmpresa($empresa,$email=null){
       if(is_null($email))
         return response()->json(Usuarios::all()->where('empresa','like',$empresa)->values());
       else
       return response()->json(Usuarios::all()->where('empresa','like',$empresa)->where('email','like',$email)->values());       
        
-    }
+    }*/
     
-   function delete(Request $request){
-        $id=$request->id;   
-        $user = Usuarios::where('id',$id)->first();
+   function delete($id){  
+        $user= Usuarios::findOrFail($id);
         //Si no encontro usuarios
         if(is_null($user)){
             return response()->json(['message' => 'No existe el usuario'], 200);
@@ -47,39 +65,51 @@ class UsuariosController extends Controller
    }
 
     //Actualiza los campos que llegan diferentes de null
-   function update(Request $request,$id){
+   function update(Request $request,$id){    
         $user= Usuarios::findOrFail($id);
         $email=$request->email;
         $nombre=$request->nombre;
         $password=$request->password;
+        $respuesta=' ';//Campos que fueron modificados
         //dd($email);
         if($email!=null){
+            if(!$this->validarcorreo($email))
+                return response()->json(['Error' =>'El email usado no es correcto','Email'=>$email],201);
             $user->update([
                 'email'=>$email
             ]);
+            $respuesta .='email ';          
         }
 
         if($nombre!=null){
             $user->update([
                 'nombre'=>$nombre
             ]);
-        }
-
-        if($nombre!=null){
-            $user->update([
-                'nombre'=>$nombre
-            ]);
+            $respuesta .='Nombre ';          
         }
 
         if($password!=null){
             $user->update([
                 'password'=>$password
             ]);
+            $respuesta .='password ';          
         }
 
         
-        return response()->json(['message' => 'Usuario actualizado con exito','usuario'=>$user], 200);
+        return response()->json(['message' => 'Usuario actualizado con exito','Modificaciones'=>$respuesta,'usuario'=>$user], 200);
    }
 
 
+     //Comprobacion de email
+     function validarcorreo($email){
+        if(filter_var($email,FILTER_VALIDATE_EMAIL)== false)
+            return false;
+        else
+            return true;
+        }
+
+
 }
+
+
+
