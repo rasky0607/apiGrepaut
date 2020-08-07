@@ -25,10 +25,13 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->group(['prefix' => 'usuario'], function () use ($router) {
         $router->get('/', ['uses'=> 'UsuariosController@list']);
         $router->get('/{email}', ['uses'=> 'UsuariosController@buscarUsuario']);
-        //$router->get('/{empresa}[/{email}]', ['uses'=> 'UsuariosController@listPorEmpresa']);//Lo que esta etre corchetes es opcional es decir puede ser nulo
-        //$router->delete('/{empresa}/{email}', ['uses'=> 'UsuariosController@midelete']);
         $router->delete('/{id}', ['uses'=> 'UsuariosController@delete']);
         $router->put('/{id}', ['uses'=> 'UsuariosController@update']);
+        //Mis notas de ejemplo:
+        //Lo que esta etre corchetes es opcional es decir puede ser nulo
+        //$router->get('/{empresa}[/{email}]', ['uses'=> 'UsuariosController@listPorEmpresa']);
+        //pasando mas de un campo por la URL
+        //$router->delete('/{empresa}/{email}', ['uses'=> 'UsuariosController@midelete']);
         
 
     });
@@ -40,6 +43,18 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/{nombre}', ['uses'=> 'EmpresasController@buscarEmpresa']);
         $router->delete('/{id}', ['uses'=> 'EmpresasController@delete']);
         $router->put('/{id}', ['uses'=> 'EmpresasController@update']);
+        
+
+    });
+
+      //Tabla UsuariosEmpresas 
+      //[PENDIENTE]-> comprobar que el usuario que accede ha esta tabla sea de tipo Admin (puede ser desde la api o con un trigger en la BD cuadno haga cambios)
+      $router->group(['prefix' => 'usuariosempresas'], function () use ($router) {
+        $router->post('/', ['uses'=> 'UsuariosEmpresasController@add']);
+        $router->get('/', ['uses'=> 'UsuariosEmpresasController@list']);
+        $router->get('/{idEmpresa}[/{idUsuario}]', ['uses'=> 'UsuariosEmpresasController@buscarUsuariosDeEmpresa']);
+        $router->delete('/{idEmpresa}/{idUsuario}', ['uses'=> 'UsuariosEmpresasController@delete']);
+        $router->put('/{idEmpresa}/{idUsuario}', ['uses'=> 'UsuariosEmpresasController@update']);
         
 
     });

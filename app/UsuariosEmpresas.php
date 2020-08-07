@@ -8,7 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
-class UsuariosEmpresas extends Model implements AuthenticatableContract, AuthorizableContract
+class Usuariosempresas extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
 
@@ -27,6 +27,6 @@ class UsuariosEmpresas extends Model implements AuthenticatableContract, Authori
      * @var array
      */
     protected $hidden = [
-        'updated_at', 'password','token',
+        'updated_at',
     ];
 }

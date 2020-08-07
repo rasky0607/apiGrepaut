@@ -20,11 +20,10 @@ class CreateTableUsuariosEmpresas extends Migration
             $table->boolean('permisoEscritura');//El usuario tiene permisos para leer y escribir[true] o solo leer[false],(Si es admin sera true por default, si no, por defecto sera false,[es decir solo permiso de lectura])        
             $table->foreign('empresa')->references('id')->on('empresas')->onUpdate('cascade');
             $table->foreign('usuario')->references('id')->on('usuarios')->onUpdate('cascade');
-            //$table->primary(['usuario','empresa']);//Declaracion de la clave conpuesta o primary key de la tabla
+            $table->primary(['usuario','empresa']);//Declaracion de la clave conpuesta o primary key de la tabla
             $table->timestamps();
         });
-
-        
+   
     }
 
     /**

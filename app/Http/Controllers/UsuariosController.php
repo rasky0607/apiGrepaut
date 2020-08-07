@@ -10,6 +10,7 @@ use App\Http\Controllers\DB as DB;
 
 class UsuariosController extends Controller
 {
+    //Registro
    function add(Request $request){
        //Comprobacion de email
        $email = $request->email;
@@ -23,6 +24,19 @@ class UsuariosController extends Controller
             'token'=>Str::random(10)
     ]);
     return response()->json(['message' =>'User registrado con exito','usuario'=>$user],200);
+   }
+
+   //Iniciar sesion
+   function inicioSesion(Request $request){
+       $email = $request->email;
+       $password=$request->password;
+       if(sizeof(Usuarios::select()->where('email',$email)->where('password',$password)>0))//Encontro algun resultado
+       {
+           //Logeo correcto
+       }else{
+           //Email o contraseña incorrectas
+       }
+
    }
 
    //Lista todos los usuarios
