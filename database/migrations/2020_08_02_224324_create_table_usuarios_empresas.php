@@ -13,7 +13,7 @@ class CreateTableUsuariosEmpresas extends Migration
      */
     public function up()
     {
-        Schema::create('usuariosEmpresas', function (Blueprint $table) {         
+        Schema::create('usuariosempresas', function (Blueprint $table) {         
             $table->bigInteger('usuario')->unsigned();//[Id del usuario]primer true para indicar que es autincremental y segundo para indicar que es clave
             $table->bigInteger('empresa')->unsigned();
             $table->enum('tipoUsuario',['admin','user']);//Tipo de usuario en esta empresa, si el primero es Admin por defecto [trigger]
@@ -33,6 +33,6 @@ class CreateTableUsuariosEmpresas extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('usuariosEmpresas');
+        Schema::dropIfExists('usuariosempresas');
     }
 }

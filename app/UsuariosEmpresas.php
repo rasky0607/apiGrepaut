@@ -29,4 +29,17 @@ class Usuariosempresas extends Model implements AuthenticatableContract, Authori
     protected $hidden = [
         'updated_at',
     ];
+
+    /* ### Relacion de Muchcos a muchos en laravel/lumen N:M  
+    para poder acceder a las tablas con la que se relaciona esta, desde su controler ###*/
+    
+    //Un Usuario puede estar en muchas empresas
+    public function usuarios(){
+        $this->belongsToMany(Usuarios::class);
+    }
+     //Una Empresa puede tener muchos usuarios
+    public function empresas(){
+        $this->belongsToMany(Empresas::class);
+    }
+        //------------------------------//
 }

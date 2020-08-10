@@ -41,7 +41,13 @@ class UsuariosController extends Controller
 
    //Lista todos los usuarios
     function list(){          
-        return response()->json(Usuarios::all());   
+        return response()->json(Usuarios::all());  
+   }
+
+   //Dado un id de usuario, muestra todas las empresas relacionadas con ese usuario y sus permisos en estas
+   function ususarioEmpresas($id){
+        $usuario=Usuarios::findOrFail($id); 
+        return response()->json($usuario->empresas);
    }
 
    //Busca un usuario concreto o con correos que empiecen igual al indicado

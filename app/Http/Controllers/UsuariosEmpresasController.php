@@ -21,6 +21,12 @@ class UsuariosEmpresasController extends Controller
     ]);
     return response()->json(['message' => 'Usuario asociado a Empresa con exito', 'Relacion entre Usuarios y Empresas' => $usuariosEmpresas], 201);
   }
+  //PENDIENTE [FUNCIONA], pero hay que sustituir los joins por el o platear cuando merece la pena
+   //Dado un id de usuario, muestra todas las empresas relacionadas con ese usuario y sus permisos en estas
+   function ususarioEmpresas($id){
+    $usuario=Usuarios::findOrFail($id); 
+    return response()->json($usuario->empresas);
+}
 
   //Lista todos los registros de la tabla UsuariosEmpresas   
   function list()
