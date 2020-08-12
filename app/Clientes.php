@@ -8,7 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
-class Empresas extends Model implements AuthenticatableContract, AuthorizableContract
+class Clientes extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
 
@@ -18,7 +18,7 @@ class Empresas extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id','nombre','direccion', 'tlf'
+        'id','nombre','empresa','apellido', 'tlf','email'
     ];
 
     /**
@@ -31,13 +31,8 @@ class Empresas extends Model implements AuthenticatableContract, AuthorizableCon
     ];
 
     //####RELACIONES ENTRE TABLAS#####
-     //Usuarios->Empresas N:M ->Un Usuario puede estar en muchas empresas
-     public function usuarios(){
-       return $this->belongsToMany(Usuarios::class,'usuariosempresas','empresa','usuario')->withTimestamps()->withPivot('tipoUsuario','permisoEscritura');
+     //1:N ->Una empresa puede tener muchos clientes
+     public function empresa(){
+        return $this->belongsTo(Empresas::class,'empresas')->withTimestamps();
     }
-
-     //Empresas->Clientes 1:N ->Un cliente esta en una y solo una empresas
-     public function clientes(){
-        return $this->hasMany(Clientes::class,'empresa');
-     }
 }

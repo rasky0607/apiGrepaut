@@ -34,6 +34,11 @@ class AuthServiceProvider extends ServiceProvider
             if ($request->header('token')) {//autentifica el usuario comprobando que en la cabecera [header] existe un campo llamado token
                 return Usuarios::where('token', $request->header('token'))->first();
             }
+            /*if($request->header('email') && $request->header('password'))
+            {
+                return Usuarios::select('token')->where('email', $request->header('email'))->where('password', $request->header('password'))->first();
+                
+            }*/
         });
     }
 }

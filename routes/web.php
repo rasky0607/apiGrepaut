@@ -11,32 +11,22 @@
 |
 */
 
-/*
-$router->get('/usuario', ['uses'=> 'UsuariosController@list']);
-$router->delete('/delete/{email}/{empresa}', ['uses'=> 'UsuariosController@delete']);
-*/
 //Rutas para acceder API desde las URL del n avegador o donde se llamen
 $router->post('/registro', ['uses'=> 'UsuariosController@add']);
+$router->post('/login', ['uses'=> 'UsuariosController@login']);
 
 //Esta ruta externa comrprueba que el usuario tiene un token antes de realizar una peticion [delete,update,list,listid] con la clase Authenticate.php y AuthServiceProvider.php
 $router->group(['middleware' => ['auth']], function () use ($router){
     
-    //Tabla Usuario
+    //Tabla Usuarios
     $router->group(['prefix' => 'usuario'], function () use ($router) {
         $router->get('/', ['uses'=> 'UsuariosController@list']);
         $router->get('/{email}', ['uses'=> 'UsuariosController@buscarUsuario']);
         $router->delete('/{id}', ['uses'=> 'UsuariosController@delete']);
         $router->put('/{id}', ['uses'=> 'UsuariosController@update']);
-        //Mis notas de ejemplo:
-        //Lo que esta etre corchetes es opcional es decir puede ser nulo
-        //$router->get('/{empresa}[/{email}]', ['uses'=> 'UsuariosController@listPorEmpresa']);
-        //pasando mas de un campo por la URL
-        //$router->delete('/{empresa}/{email}', ['uses'=> 'UsuariosController@midelete']);
-        
-
     });
 
-    //Tabla Empresa
+    //Tabla Empresas
     $router->group(['prefix' => 'empresa'], function () use ($router) {
         $router->post('/', ['uses'=> 'EmpresasController@add']);
         $router->get('/', ['uses'=> 'EmpresasController@list']);
@@ -52,12 +42,36 @@ $router->group(['middleware' => ['auth']], function () use ($router){
       $router->group(['prefix' => 'usuariosempresas'], function () use ($router) {
         $router->post('/', ['uses'=> 'UsuariosEmpresasController@add']);
         $router->get('/', ['uses'=> 'UsuariosEmpresasController@list']);
-        $router->get('/{idEmpresa}[/{idUsuario}]', ['uses'=> 'UsuariosEmpresasController@buscarUsuariosDeEmpresa']);
+        $router->get('/misempresas/{idUsuario}', ['uses'=> 'UsuariosEmpresasController@empresasDelUsuario']);
+        $router->get('/empleados/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@buscarUsuariosDeEmpresa']);
         $router->delete('/{idEmpresa}/{idUsuario}', ['uses'=> 'UsuariosEmpresasController@delete']);
         $router->put('/{idEmpresa}/{idUsuario}', ['uses'=> 'UsuariosEmpresasController@update']);
         
 
     });
+    //Tabla Clientes
+    $router->group(['prefix' => 'clientes'], function () use ($router) {
+        $router->post('/', ['uses'=> 'ClientesController@add']);
+        $router->get('/', ['uses'=> 'ClientesController@list']);
+        $router->get('/{idEmpresa}', ['uses'=> 'ClientesController@clientesEmpresa']);
+        $router->get('/{nombre}[/apellidos]', ['uses'=> 'ClientesController@buscarCliente']);
+        $router->delete('/{id}', ['uses'=> 'ClientesController@delete']);
+        $router->put('/{id}', ['uses'=> 'ClientesController@update']);
+        
+
+    });
+    //Tabla Coches
+
+    //Tabla Servicios
+
+    //Tabla Reparaciones
+
+    //Tabla ServiciosReparaciones
+
+    //Tabla Facturas
+
+    //Tabla LineaFacturas
+
     
 });
 
