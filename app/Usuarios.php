@@ -18,7 +18,7 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id','email', 'password','nombre','token'
+        'id', 'email', 'password', 'nombre', 'token'
     ];
 
     /**
@@ -27,12 +27,27 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $hidden = [
-        'updated_at', 'password','token',
+        'updated_at', 'password', 'token',
     ];
 
     //####RELACIONES ENTRE TABLAS#####
-      //N:M ->Una Empresa puede tener muchos usuarios
-      public function empresas(){
-        return $this->belongsToMany(Empresas::class,'usuariosempresas','usuario','empresa')->withTimestamps()->withPivot('tipoUsuario','permisoEscritura');
+    /**
+     * N:M Empresas/Usuarios->Una Empresa puede tener muchos usuarios (belongsToMany)
+     * y un usuario puede estar en varias empresas a la vez
+     * @return [Usuarios usuarios]
+     */
+    public function empresas()
+    {
+        return $this->belongsToMany(Empresas::class, 'usuariosempresas', 'usuario', 'empresa')->withTimestamps()->withPivot('tipoUsuario', 'permisoEscritura');
+    }
+
+    /**
+     * 1:N Usuarios/Reparaciones-> Una reparacion tiene asociado un unico usuario pero
+     * un usuario puede estar asociado a muchas reparaciones
+     * @return [Reparaciones reparaciones]
+     */
+    public function reparaciones()
+    {
+        return $this->hasMany(Reparaciones::class,'idusuario');
     }
 }

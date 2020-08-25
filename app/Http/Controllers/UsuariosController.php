@@ -9,16 +9,22 @@ use Illuminate\Support\Str;
 //Añadido
 use App\Http\Controllers\DB as DB;
 use App\Http\Middleware\Authenticate;
+use App\Utils;
 
 class UsuariosController extends Controller
 {
-    //Registro
+     /**
+     * @param Request $request
+     * Registra un nuevo Usuario insertando todos los campos optenidos
+     * por el parametro request
+     * @return [json]
+     */
     function add(Request $request)
     {
         //Comprobacion de email
         $email = $request->email;
-        if (!$this->validarcorreo($email))
-            return response()->json(['Error' => 'El email usado no es correcto', 'Email' => $email], 201);
+        if (!Utils::validarcorreo($email))
+            return response()->json(['Error' => 'El email usado no es correcto', 'Email' => $email], 202);
 
         $user = Usuarios::create([
             'email' => $request->email,
@@ -29,7 +35,11 @@ class UsuariosController extends Controller
         return response()->json(['message' => 'User registrado con exito', 'usuario' => $user], 200);
     }
 
-    //Iniciar sesion devolvera el token necesario al usuario para realizar el resto de consultas a la API
+    /**
+     * @param Request $request
+     * Iniciar sesion devolvera el token necesario al usuario para realizar el resto de consultas a la API
+     * @return [Json]
+     */
     function login(Request $request)
     {
         $email = $request->email;
@@ -44,11 +54,16 @@ class UsuariosController extends Controller
             return response()->json(['message' => 'Credenciales correctas','token '=>$token],200);
         } else {
             //Email o contraseña incorrectas
-            return response()->json(['message' => 'Email o Password incorrecto'],201);
+            return response()->json(['message' => 'Email o Password incorrecto'],202);
         }
     }
 
-    //Actualiza el token del usuario
+    /**
+     * @param mixed $id
+     * @param mixed $token
+     * Actualiza el token del usuario
+     * @return [Json]
+     */
     function actualizarToken($id,$token){
         $user = Usuarios::findOrFail($id);
         $user->update([
@@ -56,7 +71,10 @@ class UsuariosController extends Controller
         ]);
     }
 
-    //Lista todos los usuarios
+    /**
+     * Lista todos los usuarios
+     * @return [Json]
+     */
     function list()
     {
         return response()->json(Usuarios::all());
@@ -66,69 +84,69 @@ class UsuariosController extends Controller
     function buscarUsuario($email)
     {
         app('db')->enableQueryLog(); //Activar registro de querys
-        $usuario = Usuarios::where('email', 'like', urldecode($email) . '%')->get();
+        $usuario = Usuarios::where('email', 'like', '%'.urldecode($email) . '%')->get();
         if (sizeof($usuario) <= 0) {
-            return response()->json(['message' => 'No existe el usuario', 'Usuario con email:' => urldecode($email)], 200);
+            return response()->json(['message' => 'No existe el usuario', 'Usuario con email:' => urldecode($email)], 202);
         } else {
             return response()->json(['Usuario:' => $usuario], 200);
         }
     }
 
+    /**
+     * @param mixed $id
+     * Elimina un usuario indicando su id por parametro y lo devuelve
+     * @return [Json]
+     */
     function delete($id)
     {
         $user = Usuarios::findOrFail($id);
         //Si no encontro usuarios
         if (is_null($user)) {
-            return response()->json(['message' => 'No existe el usuario'], 200);
+            return response()->json(['Error' => 'No existe el usuario'], 202);
         }
         //Si econtro un usuario      
         $user->delete();
         return response()->json(['message' => 'User eliminado con exito', 'usuario' => $user], 200);
     }
 
-    //Actualiza los campos que llegan diferentes de null
+    /**
+     * @param Request $request
+     * @param mixed $id
+     * Actualiza los campos de el parametro $request que llegan diferentes de null
+     * @return [json]
+     */
     function update(Request $request, $id)
     {
         $user = Usuarios::findOrFail($id);
         $email = $request->email;
-        dd($request->email);
         $nombre = $request->nombre;
         $password = $request->password;
-        $respuesta = ' '; //Campos que fueron modificados
-        if ($email != null) {
-            if (!$this->validarcorreo($email))
-                return response()->json(['Error' => 'El email usado no es correcto', 'Email' => $email], 201);
+        $respuesta=array(); //Campos que fueron modificados
+        if (!is_null($email)) {
+            if (!Utils::validarcorreo($email))
+                return response()->json(['Error' => 'El email usado NO es correcto', 'Email' => $email], 202);
             $user->update([
                 'email' => $email
             ]);
-            $respuesta .= 'email ';
+            array_push($respuesta,'email');//Añadimos al final del array
         }
 
-        if ($nombre != null) {
+        if (!is_null($nombre)) {
             $user->update([
                 'nombre' => $nombre
             ]);
-            $respuesta .= 'Nombre ';
+            array_push($respuesta,'Nombre');
         }
 
-        if ($password != null) {
+        if (!is_null($password)) {
             $user->update([
                 'password' => $password
             ]);
-            $respuesta .= 'password ';
+            array_push($respuesta, 'password');
         }
 
 
         return response()->json(['message' => 'Usuario actualizado con exito', 'Modificaciones' => $respuesta, 'usuario' => $user], 200);
     }
 
-
-    //Comprobacion de email
-    function validarcorreo($email)
-    {
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) == false)
-            return false;
-        else
-            return true;
-    }
 }

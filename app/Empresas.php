@@ -31,13 +31,30 @@ class Empresas extends Model implements AuthenticatableContract, AuthorizableCon
     ];
 
     //####RELACIONES ENTRE TABLAS#####
-     //Usuarios->Empresas N:M ->Un Usuario puede estar en muchas empresas
+     /**
+      *N:M Usuarios/Empresas->Un Usuario puede estar en muchas empresas,
+      *y una empresa puede tener asociados muchos usuarios.
+      * @return [Usuarios usuarios]
+      */
      public function usuarios(){
        return $this->belongsToMany(Usuarios::class,'usuariosempresas','empresa','usuario')->withTimestamps()->withPivot('tipoUsuario','permisoEscritura');
     }
 
-     //Empresas->Clientes 1:N ->Un cliente esta en una y solo una empresas
+     /**
+      *1:N Clientes/Empresas->Una Empresa tiene asociados muchos Clientes(hasMany),
+      *pero un cliente esta asociado con una unica empresa
+      * @return [Clientes clientes]
+      */
      public function clientes(){
         return $this->hasMany(Clientes::class,'empresa');
+     }
+
+     /**
+      * 1:N Una Servicios/Empresas->Empresa tiene asociados muchos Servicios(hasMany),
+      *pero un servicio esta asociado a una sola empresa
+      * @return [Servicios servicios]
+      */
+     public function servicios(){
+        return $this->hasMany(Servicios::class,'empresa');
      }
 }

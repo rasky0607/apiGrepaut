@@ -31,9 +31,11 @@
          return $this->belongsToMany(Usuarios::class,'usuariosempresas','empresa','usuario')->withTimestamps()->withPivot('tipoUsuario','permisoEscritura');
 -RELACIONES ENTRE TABLAS 1:N->Un cliente esta solo en una empresa y una empresa puede tener muchos clientes 
     El lado 1 en el que se usara el metodo "hasMay()" hay que tener en cuenta que se metodo
-    no recibe como primer parametro el nombre de la talba con la que se relaciona a dierencia de "belongToMany()"
+    no recibe como primer parametro el nombre de la tabla con la que se relaciona a dierencia de "belongToMany()"
     Solo recibe como unico parametro el nombre de la clave foranea que lo relaciona con la tabla del lado muchos, en este caso (Clientes) es decir fk->[empresa]
         return $this->hasMany(Clientes::class,'empresa');
+    El lado N o muchos se usa el metodo belongsTo(), es decir una Empresa puede tener muchos clientes, en este claso en le metodo se le indicaria la clase Empresas
+    en el primer parametro, y en el segundo se le indicaria el nombre de la tabla.
 
  -Mis notas de ejemplo de rutas:
         //Lo que esta etre corchetes es opcional es decir puede ser nulo

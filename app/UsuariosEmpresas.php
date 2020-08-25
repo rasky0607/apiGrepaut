@@ -30,16 +30,8 @@ class Usuariosempresas extends Model implements AuthenticatableContract, Authori
         'updated_at',
     ];
 
-    /* ### Relacion de Muchcos a muchos en laravel/lumen N:M  
-    para poder acceder a las tablas con la que se relaciona esta, desde su controler ###*/
-    
-    //Un Usuario puede estar en muchas empresas
-    public function usuarios(){
-        $this->belongsToMany(Usuarios::class);
-    }
-     //Una Empresa puede tener muchos usuarios
-    public function empresas(){
-        $this->belongsToMany(Empresas::class);
-    }
-        //------------------------------//
+    /*Esta clase/tabla al ser generada por uan relacion de N:M entre Usuarios y Empresas
+    No tiene ninguna funcion que defina u na relacion entre tablas, ya que las relaciones
+     que defines esta tabla  generada por la cardinalidad N:M estan definidas en sus respectivas clases/tablas padre
+     Usuarios y Empresas.php*/
 }

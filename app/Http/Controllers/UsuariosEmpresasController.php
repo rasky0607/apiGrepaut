@@ -11,7 +11,13 @@ use Illuminate\Support\Str;
 
 class UsuariosEmpresasController extends Controller
 {
-
+  /**
+   * @param Request $request
+   * Registra una nueva relacion entre un usuario, una empresa y
+   * que permisos y tipo de usuario tiene en esta obteniendo los campos
+   * por el parametro request
+   * @return [json]
+   */
   function add(Request $request)
   {
     $usuariosEmpresas = Usuariosempresas::create([
@@ -22,30 +28,49 @@ class UsuariosEmpresasController extends Controller
     ]);
     return response()->json(['message' => 'Usuario asociado a Empresa con exito', 'Relacion entre Usuarios y Empresas' => $usuariosEmpresas], 201);
   }
-  
+
   #region Los Gets
 
-  //Dado un id de usuario, muestra todas las empresas relacionadas con ese usuario y sus permisos en estas
+  /**
+   * @param mixed $idUsuario
+   * Dado un id de usuario, muestra todas las empresas relacionadas con ese usuario y sus permisos y tipo de usuario en estas
+   * @return [Json]
+   */
   function empresasDelUsuario($idUsuario)
   {
     $usuario = Usuarios::findOrFail($idUsuario);
     return response()->json($usuario->empresas);
   }
 
-  //Dado un id de empresa, muestra todas los usuarios relacionados con esta empresa y sus permisos 
+  /**
+   * @param mixed $idEmpresa
+   * Dado un id de empresa, muestra todas los usuarios relacionados con esta empresa y sus permisos,
+   * es decir todos sus empleados 
+   * @return [Json]
+   */
   function buscarUsuariosDeEmpresa($idEmpresa)
   {
     $empresa = Empresas::findOrFail($idEmpresa);
     return response()->json($empresa->usuarios);
   }
 
-  //Lista todos los registros de la tabla UsuariosEmpresas   
+  /**
+   * Lista todos los registros de la tabla UsuariosEmpresas   
+   * @return [Json]
+   */
   function list()
   {
     return response()->json(Usuariosempresas::all());
   }
   #endregion 
 
+  /**
+   * @param mixed $idEmpresa
+   * @param mixed $idUsuario
+   * Dado un id de empresa y un id de usuario se elimina un registro de esta tabla,
+   * es decir se elimina una relacion entre una empresa y un usuario determinado
+   * @return [Json]
+   */
   function delete($idEmpresa, $idUsuario)
   {
     $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
@@ -58,38 +83,39 @@ class UsuariosEmpresasController extends Controller
     return response()->json(['message' => 'Se elimino el Usuario de la Empresa  con exito', 'Relacion entre eliminada' => $usuariosEmpresas], 201);
   }
 
-
-  //Actualiza los campos que llegan diferentes de null
-  /*NO se permite actualizar el idUsuario o idEmpresa, para ello,
-  para ello debera borrarse la relacion entre estos dos id de esta tabla y crear uno nuevo*/
+  /**
+   * @param Request $request
+   * @param mixed $id
+   * Actualiza los campos de el parametro $request que llegan diferentes de null
+   * NO se permite actualizar el idUsuario o idEmpresa, para ello,
+   * para ello debera borrarse la relaciones entre estos dos id de esta tabla y crear uno nuevo
+   * @return [json]
+   */
   function update($idEmpresa, $idUsuario, Request $request)
   {
     $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
-    if (sizeof($usuariosEmpresas) > 0) {
+    if (sizeof($usuariosEmpresas) > 0) //Si existe un registro con esos ids 
+    {
       $tipoUsuario = $request->tipoUsuario;
       $permisoEscritura = $request->permisoEscritura;
-      $respuesta = ' '; //Campos que fueron modificados
+      $respuesta = array(); //Campos que fueron modificados
 
       if (!is_null($tipoUsuario)) {
         Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->update([
           'tipoUsuario' => $tipoUsuario
         ]);
-        $respuesta .= 'tipoUsuario ';
+        array_push($respuesta, 'tipoUsuario ');
       }
 
       if (!is_null($permisoEscritura)) {
         Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->update([
           'permisoEscritura' => $permisoEscritura
         ]);
-        $respuesta .= 'permisoEscritura ';
+        array_push($respuesta, 'permisoEscritura ');
       }
       return response()->json(['message' => 'Empresa actualizada con exito', 'Modificaciones' => $respuesta, ' registro de usuariosEmpresas modificado' => $usuariosEmpresas], 201);
     } else {
       return response()->json(['message' => 'No se encontro el usuario con Id: ' . $idUsuario . ' asociado a la empresa con Id: ' . $idEmpresa], 202);
     }
   }
-
-
-
 }
-

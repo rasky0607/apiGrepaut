@@ -8,9 +8,9 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use DB;
-use App\Coches;
 
-class Clientes extends Model implements AuthenticatableContract, AuthorizableContract
+
+class Servicios extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
 
@@ -20,7 +20,7 @@ class Clientes extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id','nombre','empresa','apellido', 'tlf','email'
+        'id','nombre','empresa','precio', 'descripcion'
     ];
 
     /**
@@ -33,23 +33,13 @@ class Clientes extends Model implements AuthenticatableContract, AuthorizableCon
     ];
 
     //####RELACIONES ENTRE TABLAS#####
-     //
      /**
-      * 1:N Clientes/Empresas->Un cliente esta asociado a una empresa (belongsTo)
-      *pero una empresa puede tener asociados muchos clientes
+      * 1:N Un Servicio pertenece a una Empresa(belongTo)
       * @return [Empresas empresa]
       */
      public function empresa(){
         return $this->belongsTo(Empresas::class,'empresas')->withTimestamps();
-    }
-
-    /**
-     * 1:N Cliente/Coches->Un Cliente puede tener muchos coches (hasMany)
-     * pero un coche solo tiene asociado un unicocliente
-     * @return [Coches coches]
-     */
-    public function coches(){
-        return $this->hasMany(Coches::class,'idcliente');
-    }
+     }
+  
 
 }

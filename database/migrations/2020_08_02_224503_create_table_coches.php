@@ -26,7 +26,7 @@ class CreateTableCoches extends Migration
         });
 
          //cambiamos la clave primaria anterior de matricula a una clave compuesta formada por un autoincremental que viene de la tabla clientes y la matricula
-         DB::unprepared('ALTER TABLE `coches` DROP PRIMARY KEY, ADD PRIMARY KEY ( `id` , `idcliente`)');//Ejemplo de clave compuesta con un autincrement
+         //DB::unprepared('ALTER TABLE `coches` DROP PRIMARY KEY, ADD PRIMARY KEY ( `id` , `idcliente`)');//Ejemplo de clave compuesta con un autincrement
     }
 
     /**
