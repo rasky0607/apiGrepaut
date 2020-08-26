@@ -73,14 +73,17 @@ class UsuariosEmpresasController extends Controller
    */
   function delete($idEmpresa, $idUsuario)
   {
-    $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
-    if (sizeof($usuariosEmpresas) <= 0) //Si NO encontro algun resultado
+    $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa);
+    if (sizeof($usuariosEmpresas->get()) <= 0) //Si NO encontro algun resultado
     {
       return response()->json(['message' => 'No existe una relacion entre el usuario y la empresa con dichos Ids.', 'Id usuario:' => $idUsuario, 'Id empresa' => $idEmpresa], 202);
     }
-    //Si encontro un resultado     
-    Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->delete();
-    return response()->json(['message' => 'Se elimino el Usuario de la Empresa  con exito', 'Relacion entre eliminada' => $usuariosEmpresas], 201);
+    //Si encontro un resultado 
+    $objetoEliminado= clone $usuariosEmpresas->get();
+    
+    $usuariosEmpresas->delete();
+    
+    return response()->json(['message' => 'Se elimino el Usuario de la Empresa  con exito', 'Relacion entre eliminada' => $objetoEliminado], 201);
   }
 
   /**
@@ -93,27 +96,27 @@ class UsuariosEmpresasController extends Controller
    */
   function update($idEmpresa, $idUsuario, Request $request)
   {
-    $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
-    if (sizeof($usuariosEmpresas) > 0) //Si existe un registro con esos ids 
+    $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa);
+    if (sizeof($usuariosEmpresas->get()) > 0) //Si existe un registro con esos ids 
     {
       $tipoUsuario = $request->tipoUsuario;
       $permisoEscritura = $request->permisoEscritura;
       $respuesta = array(); //Campos que fueron modificados
 
       if (!is_null($tipoUsuario)) {
-        Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->update([
+        $usuariosEmpresas->update([
           'tipoUsuario' => $tipoUsuario
         ]);
         array_push($respuesta, 'tipoUsuario ');
       }
 
       if (!is_null($permisoEscritura)) {
-        Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->update([
+        $usuariosEmpresas->update([
           'permisoEscritura' => $permisoEscritura
         ]);
         array_push($respuesta, 'permisoEscritura ');
       }
-      return response()->json(['message' => 'Empresa actualizada con exito', 'Modificaciones' => $respuesta, ' registro de usuariosEmpresas modificado' => $usuariosEmpresas], 201);
+      return response()->json(['message' => 'Empresa actualizada con exito', 'Modificaciones' => $respuesta, ' registro de usuariosEmpresas modificado' => $usuariosEmpresas->get()], 201);
     } else {
       return response()->json(['message' => 'No se encontro el usuario con Id: ' . $idUsuario . ' asociado a la empresa con Id: ' . $idEmpresa], 202);
     }

@@ -88,11 +88,12 @@ class CochesController extends Controller
     function update(Request $request, $id)
     {
         $coche = Coches::findOrFail($id);
+        //$coche= Coches::where('id',1)->where('idcliente',2);
         $matricula = $request->matricula;
         $idcliente = $request->idcliente;
         $modelo = $request->modelo;
         $marca = $request->marca;
-
+        //$coche->update(['matricula'=>$matricula]); //PRUEBA DE QUE FUNCIONAN incluso con claves compuestas
         $respuesta=array(); //Campos que fueron modificados
         if (!is_null($matricula)) {
             $coche->update([
@@ -120,7 +121,7 @@ class CochesController extends Controller
                 'marca' => $marca
             ]);
             array_push($respuesta, 'marca');
-        }    
+        }   
         return response()->json(['message' => 'Cliente actualizado con exito', 'Modificaciones' => $respuesta, 'Coche' => $coche], 200);
     }
 
