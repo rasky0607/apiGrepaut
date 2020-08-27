@@ -55,6 +55,24 @@ class UsuariosEmpresasController extends Controller
   }
 
   /**
+   * @param mixed $idUsuario
+   * @param mixed $idEmpresa
+   * Busca una relacion concreta entre un usuario y una empresa
+   * @return [Json]
+   */
+  function buscarUnUsuarioDeUnaEmpresa($idUsuario,$idEmpresa)
+  {
+    $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa);
+    if (sizeof($usuariosEmpresas->get()) <= 0) //Si NO encontro algun resultado
+    {
+      return response()->json(['message' => 'No existe una relacion entre el usuario y la empresa con dichos Ids.', 'Id usuario:' => $idUsuario, 'Id empresa' => $idEmpresa], 202);
+    }
+    //Si encontro un resultado 
+  
+    return response()->json(['message' => 'Relacion entre Usuario y Empresa encontrada con exito', 'Relacion  encontrada' => $usuariosEmpresas->get()], 201);
+  }
+
+  /**
    * Lista todos los registros de la tabla UsuariosEmpresas   
    * @return [Json]
    */
@@ -65,13 +83,13 @@ class UsuariosEmpresasController extends Controller
   #endregion 
 
   /**
-   * @param mixed $idEmpresa
    * @param mixed $idUsuario
+   * @param mixed $idEmpresa
    * Dado un id de empresa y un id de usuario se elimina un registro de esta tabla,
    * es decir se elimina una relacion entre una empresa y un usuario determinado
    * @return [Json]
    */
-  function delete($idEmpresa, $idUsuario)
+  function delete($idUsuario,$idEmpresa)
   {
     $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa);
     if (sizeof($usuariosEmpresas->get()) <= 0) //Si NO encontro algun resultado
@@ -79,8 +97,7 @@ class UsuariosEmpresasController extends Controller
       return response()->json(['message' => 'No existe una relacion entre el usuario y la empresa con dichos Ids.', 'Id usuario:' => $idUsuario, 'Id empresa' => $idEmpresa], 202);
     }
     //Si encontro un resultado 
-    $objetoEliminado= clone $usuariosEmpresas->get();
-    
+    $objetoEliminado= clone $usuariosEmpresas->get();//Necesitamos clonarlo, puesto que una vez se elimina no podemos volver a mostrarlo a diferencia de las busquedas por id
     $usuariosEmpresas->delete();
     
     return response()->json(['message' => 'Se elimino el Usuario de la Empresa  con exito', 'Relacion entre eliminada' => $objetoEliminado], 201);
@@ -88,13 +105,14 @@ class UsuariosEmpresasController extends Controller
 
   /**
    * @param Request $request
-   * @param mixed $id
+   * @param mixed $idUsuario
+   * @param mixed $idEmpresa
    * Actualiza los campos de el parametro $request que llegan diferentes de null
    * NO se permite actualizar el idUsuario o idEmpresa, para ello,
    * para ello debera borrarse la relaciones entre estos dos id de esta tabla y crear uno nuevo
    * @return [json]
    */
-  function update($idEmpresa, $idUsuario, Request $request)
+  function update($idUsuario,$idEmpresa, Request $request)
   {
     $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa);
     if (sizeof($usuariosEmpresas->get()) > 0) //Si existe un registro con esos ids 

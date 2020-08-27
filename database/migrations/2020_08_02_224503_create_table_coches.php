@@ -14,13 +14,19 @@ class CreateTableCoches extends Migration
     public function up()
     {
         Schema::create('coches', function (Blueprint $table) {
-            $table->bigInteger('id',true,false)->unsigned();//Clave primaria
+            //Modificado
+            //$table->bigInteger('id',true,false)->unsigned();//Clave primaria
+            
             $table->string('matricula');
             $table->bigInteger('idcliente',false,false)->unsigned();//Clave primaria
             $table->string('modelo');
             $table->string('marca');//Creamos columna para la clave ajena
             $table->timestamps();
             $table->foreign('idcliente')->references('id')->on('clientes')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla clientes
+
+            //Nuevo
+            $table->primary(['matricula','idcliente']);//Declaracion de la clave conpuesta o primary key de la tabla
+
             //$table->primary('id','idcliente');//Declaracion de la clave compuesta o primary key de la tabla
             //$table->primary('matricula');//Declaracion de la clave primaria o primary key de la tabla temporal, para luego asignar la clave compuesta con un autoincremental
         });

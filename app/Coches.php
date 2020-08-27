@@ -18,7 +18,7 @@ class Coches extends Model implements AuthenticatableContract, AuthorizableContr
      * @var array
      */
     protected $fillable = [
-        'id','matricula','idcliente','modelo', 'marca'
+        'matricula','idcliente','modelo', 'marca'
     ];
 
     /**
@@ -46,6 +46,6 @@ class Coches extends Model implements AuthenticatableContract, AuthorizableContr
      * @return [Reparaciones reparaciones]
      */
     public function reparaciones(){
-        return $this->hasMany(Reparaciones::class,'idcoche');
+        return $this->hasMany(Reparaciones::class,'matriculaCoche');
     }
 }

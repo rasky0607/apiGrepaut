@@ -37,8 +37,7 @@ class EmpresasController extends Controller
     {
         return response()->json(Empresas::all());
     }
-
-    
+ 
     /**
      * @param mixed $nombre
      * Busca una empresa concreta que empieze igual, pasando un nombre por parametro
@@ -46,7 +45,7 @@ class EmpresasController extends Controller
      */
     function buscarEmpresa($nombre)
     {
-        $empresa = Empresas::where('nombre', 'like', urldecode($nombre) . '%')->get();
+        $empresa = Empresas::where('nombre', 'like',  '%'.urldecode($nombre) . '%')->get();
         if (sizeof($empresa) <= 0)
             return response()->json(['Error' => 'No se encontro la empresa: ', 'Empresa' => urldecode($nombre)], 202);
         else

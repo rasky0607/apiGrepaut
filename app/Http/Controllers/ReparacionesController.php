@@ -27,15 +27,15 @@ class ReparacionesController extends Controller
     {
         //Comprobacion de que el id del cliente introducido se corresponde con el dueño del coche en la tabla coches
         $idCliente=$request->idcliente;
-        $idCoche=$request->idcoche;
-        if(!$this->comprobacionCocheDeCliente($idCliente,$idCoche))
-            return response()->json(['Error'=>'El id del coche no se corresponde con el id del cliente','id de coche'=>$idCoche,'id de cliente'=>$idCliente],202);
+        $matriculaCoche=$request->matricula;
+        if(!$this->comprobacionCocheDeCliente($idCliente,$matriculaCoche))
+            return response()->json(['Error'=>'El id del coche no se corresponde con el id del cliente','Matricula de coche'=>$matriculaCoche,'id de cliente'=>$idCliente],202);
 
         $reparacion = Reparaciones::create([
             'estadoReparacion' => $request->estadoReparacion,
             'idusuario' => $request->idusuario,
             'idcliente' => $request->idcliente,
-            'idcoche' => $request->idcoche
+            'matriculaCoche' => $request->matricula
         ]);
         return response()->json(['message' => 'Reparacion registrada con exito', 'Reparacion' => $reparacion], 200);
     }
@@ -73,11 +73,12 @@ class ReparacionesController extends Controller
      * Listar reparaciones asociadas con un la matricula concreta
      * de la tabla coches
      * @param mixed $matricula
-     * Matricula del vehiculos a buscar con reparaciones
+     * @param mixed $empresa
+     * Vehiculos con reparaciones pertenecientes a una empresa
      * @return [json]
      */
-    function reparacionesDeUnChoche($matricula){
-        $reparaciones= Reparaciones::select()->whereIn('idcoche',Coches::select('id')->where('matricula',$matricula)->get())->get();
+    function reparacionesDeUnChoche($matricula,$empresa){
+        $reparaciones= Reparaciones::select()->whereIn('matriculaCoche',Coches::select('matricula')->where('matricula',$matricula)->whereIn('idCliente',Clientes::select('id')->where('empresa',$empresa))->get())->get();
          return response()->json($reparaciones);
        
     }
@@ -87,11 +88,15 @@ class ReparacionesController extends Controller
      * Elimina una reparacion pasandole un id de reparacion por parametro
      * @return [json]
      */
-    function delete($id)
+    function delete($id) //### PENDIENTE DE TESTEO ##
     {
         $reparacion=Reparaciones::findOrFail($id);
         if(is_null($reparacion))
             return response()->json(['Error'=>'No existe una reparacion el id indicado.','Id de reparacion'=>$id],202);
+
+        //Si la reparacion esta con estado "Facturado" no podra ser eliminada
+        if(strcasecmp($reparacion['estadoReparacion'],'Facturado')==0)//Si devuelve 0 es que el strin coincide(omitiendo mayusculas y  minusculas)
+            return response()->json(['Error' => 'Una reparacion con estadoReparacion [Facturado]  no puede ser eliminada.', 'Reparacion' => $reparacion], 202);
                 
         $reparacion->delete();   
         return response()->json(['Message'=>'Reparacion eliminada con exito.','Reparacion'=>$reparacion],200);
@@ -101,16 +106,20 @@ class ReparacionesController extends Controller
      * @param Request $request
      * @param mixed $id
      * Actualiza los campos de el parametro $request que llegan diferentes de null
+     * pasando el id de la reparacion por parametro
      * @return [json]
      */
-    function update(Request $request, $id)
+    function update(Request $request, $id) //### PENDIENTE DE TESTEO ##
     {
         $reparacion=Reparaciones::findOrFail($id);
         $estadoReparacion=$request->estadoReparacion;
         $idusuario=$request->idusuario;
         $idcliente=$request->idcliente;
-        $idcoche=$request->idcoche;
-        
+        $matriculaCoche=$request->matricula;
+
+        if(strcasecmp($reparacion['estadoReparacion'],'Facturado')==0)//Si devuelve 0 es que el strin coincide(omitiendo mayusculas y  minusculas)
+            return response()->json(['Error' => 'Una reparacion con estadoReparacion [Facturado]  no puede ser modificada.', 'Reparacion' => $reparacion], 202);
+
         $respuesta = array(); //Campos que fueron modificados
         if(!is_null($estadoReparacion)){
             $reparacion->update([
@@ -129,17 +138,17 @@ class ReparacionesController extends Controller
         if(!is_null($idcliente)){
             /*comprobamos si el id del coche tambien se pretende actualizar, y si es asi, comprobamos la correspondencia con el id cliente con los dos nuevos ids
             en caso contrario comprobamos la correspondencia entre el viejo id de coche con el nuevo id del usuario*/
-            if(!is_null($idcoche)){
-                if($this->comprobacionCocheDeCliente($idcliente,$idcoche))//Si el nuevo cliente se corresponde con el nuevo coche
+            if(!is_null($matriculaCoche)){
+                if($this->comprobacionCocheDeCliente($idcliente,$matriculaCoche))//Si el nuevo cliente se corresponde con el nuevo coche
                 {
                     $reparacion->update([
                         'idcliente'=>$idcliente,
-                        'idcoche'=>$idcoche
+                        'matriculaCoche'=>$matriculaCoche
                     ]);
                     array_push($respuesta,'idcliente');
-                    array_push($respuesta,'idcoche');
+                    array_push($respuesta,'matriculaCoche');
                 }else
-                    return response()->json(['Error'=>'El id del cliente no se corresponde con el del coche en la tabla coches.','id cliente'=>$idcliente,'id coche'=>$idcoche],202);
+                    return response()->json(['Error'=>'El id del cliente no se corresponde con el del coche en la tabla coches.','id cliente'=>$idcliente,'matricula de coche'=>$matriculaCoche],202);
             }else{
                 if($this->comprobacionCocheDeCliente($idcliente,$reparacion['idcoche']))//Si el nuevo cliente se corresponde con el viejo id del coche
                 {
@@ -153,16 +162,16 @@ class ReparacionesController extends Controller
             }
            
         }
-        else if(is_null($idcliente) && !is_null($idcoche)){
+        else if(is_null($idcliente) && !is_null($matriculaCoche)){
            
-            if($this->comprobacionCocheDeCliente($reparacion['idcliente'],$idcoche)){                  
+            if($this->comprobacionCocheDeCliente($reparacion['matriculaCoche'],$matriculaCoche)){                  
                     $reparacion->update([
-                        'idcoche'=>$idcoche
+                        'matriculaCoche'=>$matriculaCoche
                     ]);
-                    array_push($respuesta,'idcoche');
+                    array_push($respuesta,'matriculaCoche');
                 }
                 else
-                    return response()->json(['Error'=>'El id del cliente no se corresponde con el del coche en la tabla coches.','id coche'=>$idcoche,'id cliente'=>$reparacion['idcliente']],202);
+                    return response()->json(['Error'=>'El id del cliente no se corresponde con el del coche en la tabla coches.','Matricula de coche'=>$matriculaCoche,'id cliente'=>$reparacion['idcliente']],202);
         }
 
         return response()->json(['message' => 'Reparacion actualizado con exito', 'Modificaciones' => $respuesta, 'Reparacion' => $reparacion], 200);
@@ -177,8 +186,8 @@ class ReparacionesController extends Controller
      * en caso contrario false
      * @return [Booblean boobl]
      */
-    function comprobacionCocheDeCliente($idCliente,$idCoche){
-        $coche=Coches::where('idcliente',$idCliente)->where('id',$idCoche)->get();
+    function comprobacionCocheDeCliente($idCliente,$matricula){
+        $coche=Coches::where('idcliente',$idCliente)->where('matricula',$matricula)->get();
         if(sizeof($coche)<=0)//No encontro ninguna correspondencia
             return false;
         
