@@ -1,6 +1,5 @@
 <?php
 
-//Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan 
 namespace App\Http\Controllers;
 
 use App\Clientes;
@@ -12,6 +11,10 @@ use App\Http\Controllers\DB as DB;
 use App\Http\Middleware\Authenticate;
 use App\Utils;
 
+/**
+ * [Description CochesController]
+ * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
+ */
 class CochesController extends Controller
 {
     /**
@@ -48,10 +51,19 @@ class CochesController extends Controller
     function cochesDeUnCliente($idCliente)
     {
         $cliente = Clientes::findOrFail($idCliente);
-        return response()->json($cliente->coches,200);
+        return response()->json($cliente->coches, 200);
     }
 
-    //
+    /**
+     * @param mixed $id
+     * Muestra los dato de un coche determinado
+     * @return [Json]
+     */
+    function unCoche($id)
+    {
+        return response()->json(Coches::select()->where('id', $id)->get());
+    }
+
     /**
      * @param  $idEmpresa 
      * Coches que pertenecen a clientes de una empresa determinada pasando por la url el id de la empresa
@@ -70,16 +82,15 @@ class CochesController extends Controller
      * Elimina un coche pasando  el id de cliente y una matricula por parametro
      * @return [json]
      */
-    function delete($idCliente,$matricula)
+    function delete($id)
     {
-        $coche= Coches::where('idcliente',$idCliente)->where('matricula',$matricula);
+        $coche = Coches::find($id);
         if (is_null($coche)) {
-            return response()->json(['Error' => 'No existe el Coche la matricula y el id de cliente indicados','matricula'=>$matricula,'id cliente'=>$idCliente], 202);
+            return response()->json(['Error' => 'No existe el Coche con el id indicado', 'id coche' => $id], 202);
         }
-        //Si encontro un resultado 
-        $objetoEliminado= clone $coche->get();//Necesitamos clonar el objeto ya que una vez es eliminado no podemos vovler a mostrarlo, a diferenica de los que son buscados por id
+        //Si encontro una empresa      
         $coche->delete();
-        return response()->json(["message" => "Coche eliminado con exito.", "Coche eliminado:" => $objetoEliminado], 200);
+        return response()->json(["message" => "Coche eliminado con exito.", "Coche eliminado:" => $coche], 200);
     }
 
     /**
@@ -90,39 +101,27 @@ class CochesController extends Controller
      * pasando un id de cliente y una matricula por parametro
      * @return [json]
      */
-    function update(Request $request, $idClienteVij,$matriculaCoche)
+    function update(Request $request, $id)
     {
-        $coche= Coches::where('idcliente',$idClienteVij)->where('matricula',$matriculaCoche);
+        $coche = Coches::findOrFail($id);
         $matriculaNueva = $request->matricula;
         $idclienteNuevo = $request->idcliente;
         $modelo = $request->modelo;
         $marca = $request->marca;
-        $respuesta=array(); //Campos que fueron modificados
+        $respuesta = array(); //Campos que fueron modificados
 
-        if(!is_null($idclienteNuevo) && !is_null($matriculaNueva))//Si  las claves son distintas de null
-        {
-            $coche->update([
-                'matricula' => $matriculaNueva,
-                'idcliente' => $idclienteNuevo
-            ]);
-            array_push($respuesta, 'matricula');//Añadimos al final del array de modificaciones
-            array_push($respuesta, 'idcliente');
-            $coche= Coches::where('idcliente',$idclienteNuevo)->where('matricula',$matriculaNueva);
-        }else if(!is_null($idclienteNuevo) && is_null($matriculaNueva))//Si el ID Cliente NO es null pero la matricula si
-        {
+        if (!is_null($idclienteNuevo)) {
             $coche->update([
                 'idcliente' => $idclienteNuevo
             ]);
             array_push($respuesta, 'idcliente');
-            $coche= Coches::where('idcliente',$idclienteNuevo)->where('matricula',$matriculaCoche);
+        }
 
-        }else if(is_null($idclienteNuevo) && !is_null($matriculaNueva))//Si la Matricula NO es null pero el id cliente si
-        {
+        if (!is_null($matriculaNueva)) {
             $coche->update([
                 'matricula' => $matriculaNueva
             ]);
             array_push($respuesta, 'matricula');
-            $coche= Coches::where('idcliente',$idClienteVij)->where('matricula',$matriculaNueva);
         }
 
         if (!is_null($modelo)) {
@@ -137,8 +136,7 @@ class CochesController extends Controller
                 'marca' => $marca
             ]);
             array_push($respuesta, 'marca');
-        }   
-        return response()->json(['message' => 'Cliente actualizado con exito', 'Modificaciones' => $respuesta, 'Coche' => $coche->get()], 200);
+        }
+        return response()->json(['message' => 'Cliente actualizado con exito', 'Modificaciones' => $respuesta, 'Coche' => $coche], 200);
     }
-
 }

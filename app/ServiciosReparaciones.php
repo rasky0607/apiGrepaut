@@ -7,14 +7,12 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
-use DB;
-
 
 /**
- * [Description Servicios]
- * Clase modelo de la tabla Servicios
+ * [Description Reparaciones]
+ * Clase modelo de la tabla Reparaciones
  */
-class Servicios extends Model implements AuthenticatableContract, AuthorizableContract
+class Serviciosreparaciones extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
 
@@ -24,7 +22,7 @@ class Servicios extends Model implements AuthenticatableContract, AuthorizableCo
      * @var array
      */
     protected $fillable = [
-        'id','nombre','empresa','precio', 'descripcion'
+        'idreparacion','numerotrabajo','servicio','idEmpresaServicio'
     ];
 
     /**
@@ -36,14 +34,7 @@ class Servicios extends Model implements AuthenticatableContract, AuthorizableCo
         'updated_at',
     ];
 
-    //####RELACIONES ENTRE TABLAS#####
-     /**
-      * 1:N Un Servicio pertenece a una Empresa(belongTo)
-      * @return [Empresas empresa]
-      */
-     public function empresa(){
-        return $this->belongsTo(Empresas::class,'empresas')->withTimestamps();
-     }
-  
+    //Relaciones de tablas
 
+  
 }

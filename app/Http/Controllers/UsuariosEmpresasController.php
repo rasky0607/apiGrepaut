@@ -1,6 +1,5 @@
 <?php
 
-//Clase que realiza peticiones a la BD para modificar o obtener datos y enviarlos donde se necesitan 
 namespace App\Http\Controllers;
 
 use App\Empresas;
@@ -9,6 +8,10 @@ use App\Usuariosempresas;
 use App\Usuarios;
 use Illuminate\Support\Str;
 
+/**
+ * [Description UsuariosEmpresasController]
+ * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
+ */
 class UsuariosEmpresasController extends Controller
 {
   /**

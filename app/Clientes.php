@@ -10,6 +10,10 @@ use Laravel\Lumen\Auth\Authorizable;
 use DB;
 use App\Coches;
 
+/**
+ * [Description Clientes]
+ * Clase modelo de la tabla Clientes
+ */
 class Clientes extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;

@@ -66,8 +66,8 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/', ['uses'=> 'CochesController@list']);
         $router->get('/cliente/{idCliente}', ['uses'=> 'CochesController@cochesDeUnCliente']);
         $router->get('/empresa/{idEmpresa}', ['uses'=> 'CochesController@cochesDeClientesDeUnaEmpresa']);
-        $router->delete('/{idCliente}/{matricula}', ['uses'=> 'CochesController@delete']);
-        $router->put('/{idCliente}/{matriculaCoche}', ['uses'=> 'CochesController@update']);
+        $router->delete('/{id}', ['uses'=> 'CochesController@delete']);
+        $router->put('/{id}', ['uses'=> 'CochesController@update']);
         
 
     });
@@ -94,7 +94,15 @@ $router->group(['middleware' => ['auth']], function () use ($router){
 
     });
     //Tabla ServiciosReparaciones
+    $router->group(['prefix' => 'serviciosReparaciones'], function () use ($router) {
+        $router->post('/', ['uses'=> 'ServiciosReparacionesController@add']);
+        $router->get('/', ['uses'=> 'ServiciosReparacionesController@list']);
+        $router->get('/{idreparacion}', ['uses'=> 'ServiciosReparacionesController@listServiciosDeUnaReparacion']);
+        $router->delete('/{idreparacion}/{numerotrabajo}', ['uses'=> 'ServiciosReparacionesController@delete']);
+        $router->put('/{id}', ['uses'=> 'ServiciosReparacionesController@update']);
+        
 
+    });
     //Tabla Facturas
 
     //Tabla LineaFacturas

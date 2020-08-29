@@ -1,6 +1,5 @@
 <?php
 
-//Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -11,6 +10,10 @@ use App\Http\Controllers\DB as DB;
 use App\Http\Middleware\Authenticate;
 use App\Utils;
 
+/**
+ * [Description UsuariosController]
+ * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
+ */
 class UsuariosController extends Controller
 {
      /**

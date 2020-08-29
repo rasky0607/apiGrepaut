@@ -8,6 +8,10 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
+/**
+ * [Description Reparaciones]
+ * Clase modelo de la tabla Reparaciones
+ */
 class Reparaciones extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
@@ -18,7 +22,7 @@ class Reparaciones extends Model implements AuthenticatableContract, Authorizabl
      * @var array
      */
     protected $fillable = [
-        'id','estadoReparacion', 'idusuario','idcliente','matriculaCoche'
+        'id','estadoReparacion', 'idusuario','idcliente','idcoche'
     ];
 
     /**

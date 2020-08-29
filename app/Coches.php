@@ -8,6 +8,10 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
+/**
+ * [Description Coches]
+ * Clase modelo de la tabla Coches
+ */
 class Coches extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
