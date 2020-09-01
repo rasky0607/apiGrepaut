@@ -19,7 +19,7 @@ use App\Coches;
  */
 class ClientesController extends Controller
 {
-     /**
+    /**
      * @param Request $request
      * Registra un nuevo cliente insertando todos los campos optenidos
      * por el parametro request
@@ -29,32 +29,23 @@ class ClientesController extends Controller
     {
         $email = $request->email;
         $tlf = $request->tlf;
-
         if (!Utils::validarTlf($tlf)) //Comprobacion de email  
             return response()->json(['Error' => 'El telefono usado no es correcto', 'tlf' => $tlf], 201);
 
-        if (!is_null($email)) //Con email
+        if (!is_null($email)) //Si es distinto de null
         {
             if (!Utils::validarcorreo($email)) //Comprobacion de email  
                 return response()->json(['Error' => 'El email usado no es correcto', 'Email' => $email], 201);
-
-            $cliente = Clientes::create([
-                'nombre' => $request->nombre,
-                'empresa' => $request->empresa,
-                'apellido' => $request->apellido,
-                'tlf' => $request->tlf,
-                'email' => $request->email
-            ]);
-        } else //Sin email
-        {
-            $cliente = Clientes::create([
-                'nombre' => $request->nombre,
-                'empresa' => $request->empresa,
-                'apellido' => $request->apellido,
-                'tlf' => $request->tlf,
-                'email' => null
-            ]);
         }
+
+        $cliente = Clientes::create([
+            'nombre' => $request->nombre,
+            'empresa' => $request->empresa,
+            'apellido' => $request->apellido,
+            'tlf' => $request->tlf,
+            'email' => $request->email
+        ]);
+
         return response()->json(['message' => 'Cliente registrado con exito', 'Cliente' => $cliente], 200);
     }
 
@@ -75,9 +66,9 @@ class ClientesController extends Controller
     function clientesEmpresa($idEmpresa)
     {
         $empresa = Empresas::find($idEmpresa);
-        if(is_null($empresa))
-            return response()->json(["Error:"=>"No se encontro ninguna empresa con ese id.","IdEmpresa: "=>$idEmpresa],202);
-        return response()->json($empresa->clientes);
+        if (is_null($empresa))
+            return response()->json(["Error:" => "No se encontro ninguna empresa con ese id.", "Id empresa: " => $idEmpresa], 202);
+        return response()->json($empresa->clientes); //Devuelve todos los clientes relacionados con esa empresa
     }
 
     /**
@@ -140,19 +131,17 @@ class ClientesController extends Controller
         $email = $request->email;
 
         //Comprobaciones
-        if(!is_null($tlf))
-        {
+        if (!is_null($tlf)) {
             if (!Utils::validarTlf($tlf)) //Comprobacion de numero de Tlf
                 return response()->json(['Error' => 'El telefono de el cliente NO es correcto', 'Telefono' => $tlf], 202);
         }
-        if (!is_null($email)) 
-        {
-            if (!Utils::validarcorreo($email))//Comprobacion de numero de Email
+        if (!is_null($email)) {
+            if (!Utils::validarcorreo($email)) //Comprobacion de numero de Email
                 return response()->json(['Error' => 'El email usado no es correcto', 'Email' => $email], 202);
         }
 
 
-        $respuesta=array(); //Campos que fueron modificados
+        $respuesta = array(); //Campos que fueron modificados
         if (!is_null($nombre)) {
             $cliente->update([
                 'nombre' => $nombre
@@ -185,9 +174,8 @@ class ClientesController extends Controller
             $cliente->update([
                 'email' => $email
             ]);
-            array_push($respuesta ,'email ');
+            array_push($respuesta, 'email ');
         }
         return response()->json(['message' => 'Cliente actualizado con exito', 'Modificaciones' => $respuesta, 'Cliente' => $cliente], 200);
     }
-
 }

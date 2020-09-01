@@ -14,17 +14,20 @@ class CreateTableLineasFacturas extends Migration
     public function up()
     {
         Schema::create('lineasFacturas', function (Blueprint $table) {
-            $table->integer('numerofactura',false,true);//clave ajena de la tabla Facturas (clave primaria)
-            $table->integer('idreparacionfacturada',false,true);//clave ajena de la tabla Facturas (clave primaria)
-            $table->integer('linea', false, true);//Numero de linea de la factura (clave primaria)
-            $table->integer('numerotrabajo',false,true);//clave ajena de  serviciosReparaciones
-            $table->integer('idreparacion',false,true);//clave ajena de la tabla Facturas (clave primaria)
+            $table->bigInteger('numerofactura',false,false)->unsigned();//clave ajena de la tabla Facturas (clave primaria)
+            $table->bigInteger('idreparacionfacturada',false,false)->unsigned();//clave ajena de la tabla Facturas (clave primaria)
+            $table->bigInteger('linea', false, false)->unsigned();//Numero de linea de la factura (clave primaria)
+            
+            //$table->bigInteger('numerotrabajo',false,false)->unsigned();//clave ajena de  serviciosReparaciones
+            //$table->bigInteger('idreparacion',false,false)->unsigned();//clave ajena de la tabla Facturas (clave primaria)
+           
             $table->double('precio',10,2);
             $table->timestamps();
             //Este campo (precio) guarda el precio del servicio en el momento que se creo la linea de factura,
             //(por si cambia en un futuro y necesitamos reimprimir la factura, que el coste no cambie) este double tiene precision dos decimales
-            $table->foreign('numerotrabajo')->references('numerotrabajo')->on('serviciosReparaciones')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla serviciosReparaciones
-            $table->foreign('idreparacion')->references('idreparacion')->on('serviciosReparaciones')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  serviciosReparaciones
+            //$table->foreign('numerotrabajo')->references('numerotrabajo')->on('serviciosReparaciones')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla serviciosReparaciones
+            //$table->foreign('idreparacion')->references('idreparacion')->on('serviciosReparaciones')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  serviciosReparaciones
+           
             $table->foreign('idreparacionfacturada')->references('idreparacion')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  facturas
             $table->foreign('numerofactura')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  facturas
             $table->primary(['linea','numerofactura','idreparacionfacturada']);//Declaracion de la clave conpuesta o primary key de la tabla

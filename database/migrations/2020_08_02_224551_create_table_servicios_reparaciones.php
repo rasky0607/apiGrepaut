@@ -14,16 +14,14 @@ class CreateTableServiciosReparaciones extends Migration
     public function up()
     {
         Schema::create('serviciosReparaciones', function (Blueprint $table) {
-            $table->integer('idreparacion',false,true);//clave ajena de la tabla reparaciones (clave primaria)
-            $table->integer('numerotrabajo', false, true);//numero del trabajo  asginados a una reparacion concreta (clave primaria)
+            $table->bigInteger('idreparacion',false,false)->unsigned();//clave ajena de la tabla reparaciones (clave primaria)
+            $table->integer('numerotrabajo', false, false)->unsigned();//numero del trabajo  asginados a una reparacion concreta (clave primaria)
             $table->bigInteger('servicio',false,false)->unsigned();//clave columna para la clave ajena de la tabla servicios
-            $table->bigInteger('idEmpresaServicio',false,false)->unsigned();//Creamos columna para la clave ajena de la tabla servicios
-            $table->timestamps();
+            $table->double('precioServicio',10,2);
             $table->foreign('idreparacion')->references('id')->on('reparaciones')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla reparaciones
             $table->foreign('servicio')->references('id')->on('servicios')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla servicios
-            $table->foreign('idEmpresaServicio')->references('empresa')->on('servicios')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla servicios
             $table->primary(['numerotrabajo','idreparacion']);//Declaracion de la clave conpuesta o primary key de la tabla
-            //claves de esta tabla (numerotrabajo,idreparacion)
+            $table->timestamps();
         });
 
          //Creamos una clave compuesta con un autoincremental (es la mejor forma que encontre de hacerlo en lumen),ya que increments convierte el campo autamticamente en clave primaria

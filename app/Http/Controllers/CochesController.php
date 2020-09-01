@@ -51,7 +51,9 @@ class CochesController extends Controller
     function cochesDeUnCliente($idCliente)
     {
         $cliente = Clientes::findOrFail($idCliente);
-        return response()->json($cliente->coches, 200);
+        if(is_null($cliente))//No encontro el cliente 
+            return response()->json(['Error' => 'No existe ese id de cliente.', 'Id de cliente' => $cliente], 202);
+        return response()->json($cliente->coches, 200);//Devuelve todos los coches relacionados con ese cliente
     }
 
     /**
@@ -72,7 +74,12 @@ class CochesController extends Controller
     function cochesDeClientesDeUnaEmpresa($idEmpresa)
     {
         //Ejemplo sql= select * from coches where idCliente in(select id from clientes where empresa=1); 
-        return response()->json(Coches::select()->whereIn('idcliente', Clientes::select('id')->where('empresa', $idEmpresa)->get())->get());
+        $coches=Coches::select()->whereIn('idcliente', Clientes::select('id')->where('empresa', $idEmpresa)->get())->get();
+        if(sizeof($coches)<=0)//No encontro el cliente 
+            return response()->json(['Error' => 'No existe coches registrados para los clientes de la empresa indicada.', 'Id de empresa' => $idEmpresa], 202);
+        
+        return response()->json($coches);
+        //return response()->json(Coches::select()->whereIn('idcliente', Clientes::select('id')->where('empresa', $idEmpresa)->get())->get());
     }
 
 

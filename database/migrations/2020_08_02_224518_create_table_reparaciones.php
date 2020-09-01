@@ -14,7 +14,7 @@ class CreateTableReparaciones extends Migration
     public function up()
     {
         Schema::create('reparaciones', function (Blueprint $table) {
-            $table->integer('id', true, true);//clave primaria
+            $table->bigInteger('id', true, true);//clave primaria
             $table->enum('estadoReparacion',['facturado','no facturado']);
             $table->bigInteger('idusuario',false,true)->unsigned();
             $table->bigInteger('idcoche')->unsigned();//Creamos columna para clave ajena de la tabla coches    

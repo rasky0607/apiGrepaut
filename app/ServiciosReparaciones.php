@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
 /**
- * [Description Reparaciones]
- * Clase modelo de la tabla Reparaciones
+ * [Description Serviciosreparaciones]
+ * Clase modelo de la tabla Serviciosreparaciones
+ * La cual tambien actuara como tabla Linea de facturas ya que tendra todos los datos que comprenden  una factura
  */
 class Serviciosreparaciones extends Model implements AuthenticatableContract, AuthorizableContract
 {
@@ -22,7 +23,7 @@ class Serviciosreparaciones extends Model implements AuthenticatableContract, Au
      * @var array
      */
     protected $fillable = [
-        'idreparacion','numerotrabajo','servicio','idEmpresaServicio'
+        'idreparacion','numerotrabajo','servicio','precioServicio'
     ];
 
     /**

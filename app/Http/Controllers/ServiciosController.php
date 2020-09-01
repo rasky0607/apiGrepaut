@@ -51,7 +51,10 @@ class ServiciosController extends Controller
     function buscarServiciosDeEmpresa($idEmpresa)
     {
         $empresa=Empresas::find($idEmpresa);
-        return response()->json($empresa->servicios);
+        if(is_null($empresa))//No encontro la empresa
+            return response()->json(['Error' => 'No existe ese id de empresa.', 'Id de empresa' => $empresa], 202);
+
+        return response()->json($empresa->servicios);//Devuelve todos los servicios relacionados con esa empresa
     }
 
     /**

@@ -24,7 +24,8 @@ class ReparacionesController extends Controller
     /**
      * @param Request $request
      * Registra una nueva reparacion insertando todos los campos optenidos
-     * por el parametro request
+     * por el parametro request.
+     * Por defecto toda reparacion creada, se crea con el estado 'No facturado'
      * @return [json]
      */
     function add(Request $request) //### PENDIENTE DE TESTEO ##
@@ -32,11 +33,12 @@ class ReparacionesController extends Controller
         //Comprobacion de que el id del usuario introducido se corresponde la empresa a la que pertenece el coche
         $idcoche = $request->idcoche;
         $idusuario = $request->idusuario;
+        $estadoReparacion='No facturado';//Valor por defecto al crear una reparacion
         if (!$this->comprobacionCocheYusuario($idusuario, $idcoche))
             return response()->json(['Error' => 'El id del coche y el id de usuario[el tecnico] no pertenecen a la mism empresa', 'id de coche' => $idcoche, 'id de usuario' => $idusuario], 202);
 
         $reparacion = Reparaciones::create([
-            'estadoReparacion' => $request->estadoReparacion,
+            'estadoReparacion' => $estadoReparacion,
             'idusuario' => $request->idusuario,
             'idcoche' => $request->idcoche
         ]);
@@ -60,6 +62,9 @@ class ReparacionesController extends Controller
     function listReparacionesEmpresa($idEmpresa)
     {
         $reparaciones = Reparaciones::select()->whereIn('idusuario', Usuariosempresas::select('usuario')->where('empresa', $idEmpresa)->get())->get();
+        if(sizeof($reparaciones)<=0)//No encontro el cliente 
+            return response()->json(['Error' => 'No existe reparaciones registradas en la empresa indicada.', 'Id de empresa' => $idEmpresa], 202);
+        
         return response()->json($reparaciones);
     }
 
@@ -71,21 +76,25 @@ class ReparacionesController extends Controller
     function listReparacionesUsuario($idusuario)
     {
         $usuario = Usuarios::find($idusuario);
+        if(is_null($usuario))//No encontro el usuario
+            return response()->json(['Error' => 'No existe ese tecnico o id de usuario.', 'Id de usuario' => $idusuario], 202);
+
         return response()->json($usuario->reparaciones);
     }
 
     /**
-     * Listar reparaciones asociadas con un la matricula concreta
+     * Listar reparaciones asociadas con un id de coche concreto
      * de la tabla coches
-     * @param mixed $matricula
-     * @param mixed $empresa
-     * Vehiculos con reparaciones pertenecientes a una empresa
+     * @param mixed $idcoche
+     * Reparaciones de un vehiculo concreto
      * @return [json]
      */
-    function reparacionesDeUnChoche($matricula, $empresa)
+    function reparacionesDeUnChoche($idcoche)
     {
-        $reparaciones = Reparaciones::select()->whereIn('matriculaCoche', Coches::select('matricula')->where('matricula', $matricula)->whereIn('idCliente', Clientes::select('id')->where('empresa', $empresa))->get())->get();
-        return response()->json($reparaciones);
+        $coche=Coches::find($idcoche);
+        if(is_null($coche))//No encontro el coche
+            return response()->json(['Error' => 'No existe ese id de coche.', 'Id de coche' => $idcoche], 202);
+        return response()->json($coche->reparaciones);//Devuelve las reparaciones relacionadas con ese coche
     }
 
     /**

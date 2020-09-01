@@ -19,17 +19,31 @@ class UsuariosEmpresasController extends Controller
    * Registra una nueva relacion entre un usuario, una empresa y
    * que permisos y tipo de usuario tiene en esta obteniendo los campos
    * por el parametro request
+   * Por defecto el primer usuario dado de alta en una empresa es Admin
+   * con permisos de escritura True.
+   * El resto de usuarios por defecto se crearan como User con permisos a False.
    * @return [json]
    */
   function add(Request $request)
   {
+    $empleadosEnLaEmpresa=Usuariosempresas::where('empresa',$request->empresa)->count();
+    $tipoUsuario=null;
+    $permisoEscritura=null;
+    //Si es el primer usuario de la empresa, se crea como Admin con permisos de escritura a true
+    if($empleadosEnLaEmpresa== 0){
+      $tipoUsuario='Admin';
+      $permisoEscritura=true;
+    }else{//de lo contrario, se crea como User con permisos de escritura a false
+      $tipoUsuario='User';
+      $permisoEscritura=false;
+    }
     $usuariosEmpresas = Usuariosempresas::create([
       'usuario' => $request->usuario,
       'empresa' => $request->empresa,
-      'tipoUsuario' => $request->tipoUsuario,
-      'permisoEscritura' => $request->permisoEscritura
+      'tipoUsuario' => $tipoUsuario,
+      'permisoEscritura' => $permisoEscritura
     ]);
-    return response()->json(['message' => 'Usuario asociado a Empresa con exito', 'Relacion entre Usuarios y Empresas' => $usuariosEmpresas], 201);
+    return response()->json(['message' => 'Usuario asociado a Empresa con exito', 'Empleado' => $usuariosEmpresas], 201);
   }
 
   #region Los Gets
@@ -54,7 +68,10 @@ class UsuariosEmpresasController extends Controller
   function buscarUsuariosDeEmpresa($idEmpresa)
   {
     $empresa = Empresas::findOrFail($idEmpresa);
-    return response()->json($empresa->usuarios);
+    if(is_null($empresa))//No encontro la empresa
+      return response()->json(['Error' => 'No existe ese id de empresa.', 'Id de empresa' => $empresa], 202);
+
+    return response()->json($empresa->usuarios);//Devuelve todos los usuarios relacionados con la empresa
   }
 
   /**

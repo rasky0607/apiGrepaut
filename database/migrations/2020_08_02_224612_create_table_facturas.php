@@ -15,12 +15,12 @@ class CreateTableFacturas extends Migration
     public function up()
     {
         Schema::create('facturas', function (Blueprint $table) {
-            $table->integer('numero', false, true);//autoincremental(clave primaria)
-            $table->integer('idreparacion', false, true);//Clave ajena de propadaga de la tabla reparaciones(clave primaria) gracias a la cual identificamos las facturas de las diferentes empresas
+            $table->bigInteger('numero', false, true)->unsigned();//autoincremental(clave primaria)
+            $table->bigInteger('idreparacion', false, true)->unsigned();//Clave ajena de propadaga de la tabla reparaciones(clave primaria) gracias a la cual identificamos las facturas de las diferentes empresas
             $table->date('fecha');
             $table->enum('tipo',['vigente','anulada']);
             $table->foreign('idreparacion')->references('id')->on('reparaciones')->onUpdate('cascade');//Referencia de la clave ajena de la tabla reparaciones
-            $table->integer('numeroanulada',false,true)->nullable();//clave ajena con sigo misma  que puede ser nula, ya que referenica a una factura anterior anulada
+            $table->bigInteger('numeroanulada',false,false)->unsigned()->nullable();//clave ajena con sigo misma  que puede ser nula, ya que referenica a una factura anterior anulada
             $table->timestamps();
             //$table->foreign('numeroanulada')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena reflexiva de la propia tabla facturas
             $table->primary(['numero','idreparacion']);//Declaracion de la clave conpuesta o primary key de la tabla

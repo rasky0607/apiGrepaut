@@ -50,6 +50,6 @@ class Coches extends Model implements AuthenticatableContract, AuthorizableContr
      * @return [Reparaciones reparaciones]
      */
     public function reparaciones(){
-        return $this->hasMany(Reparaciones::class,'matriculaCoche');
+        return $this->hasMany(Reparaciones::class,'idcoche');
     }
 }
