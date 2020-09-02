@@ -29,7 +29,7 @@ class CreateTableLineasFacturas extends Migration
             //$table->foreign('idreparacion')->references('idreparacion')->on('serviciosReparaciones')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  serviciosReparaciones
            
             $table->foreign('idreparacionfacturada')->references('idreparacion')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  facturas
-            $table->foreign('numerofactura')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  facturas
+            $table->foreign('numerofactura')->references('numerofactura')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla  facturas
             $table->primary(['linea','numerofactura','idreparacionfacturada']);//Declaracion de la clave conpuesta o primary key de la tabla
         });
 

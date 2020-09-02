@@ -22,8 +22,9 @@ class CreateTableUsuarios extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('nombre');
-            $table->timestamps();
             $table->string('token');
+            $table->binary('logousuario')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -86,7 +86,7 @@ class UsuariosController extends Controller
     //Busca un usuario concreto o con correos que empiecen igual al indicado
     function buscarUsuario($email)
     {
-        app('db')->enableQueryLog(); //Activar registro de querys
+        //app('db')->enableQueryLog(); //Activar registro de querys
         $usuario = Usuarios::where('email', 'like', '%'.urldecode($email) . '%')->get();
         if (sizeof($usuario) <= 0) {
             return response()->json(['message' => 'No existe el usuario', 'Usuario con email:' => urldecode($email)], 202);
