@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Http\Controllers\DB;
+//use App\Http\Controllers\DB;
 use Illuminate\Support\Facades\DB as FacadesDB;
 
 class CreateTableFacturas extends Migration
@@ -22,6 +22,7 @@ class CreateTableFacturas extends Migration
             $table->enum('estado',['vigente','anulada']);
             $table->foreign('idreparacion')->references('id')->on('reparaciones')->onUpdate('cascade');//Referencia de la clave ajena de la tabla reparaciones
             $table->bigInteger('numeroanulada',false,false)->unsigned()->nullable();//clave ajena con sigo misma  que puede ser nula, ya que referenica a una factura anterior anulada
+	   // $table->foreign('numeroanulada')->references('numerofactura')->on('facturas')->onUpdate('cascade');
             $table->timestamps();
             //$table->foreign('numeroanulada')->references('numero')->on('facturas')->onUpdate('cascade');//Referencia de la clave ajena reflexiva de la propia tabla facturas
             $table->primary(['numerofactura','idreparacion']);//Declaracion de la clave conpuesta o primary key de la tabla
@@ -30,7 +31,7 @@ class CreateTableFacturas extends Migration
         //Creamos una clave compuesta con un autoincremental (es la mejor forma que encontre de hacerlo en lumen),ya que increments convierte el campo autamticamente en clave primaria
         // y peta al  indicarle abajo que es compuesta, por lo que debemos borrarla y volver a crearla
         //DB::unprepared('ALTER TABLE `facturas` DROP PRIMARY KEY, ADD PRIMARY KEY ( `numero` , `idreparacion`)');//Ejemplo de clave compuesta con u n autincrement
-        DB::unprepared('ALTER TABLE `facturas`ADD CONSTRAINT `numeroanulada_fk` FOREIGN KEY (numeroanulada) REFERENCES `facturas`(numerofactura) ON UPDATE CASCADE ON DELETE RESTRICT ');
+        FacadesDB::unprepared('ALTER TABLE `facturas`ADD CONSTRAINT `numeroanulada_fk` FOREIGN KEY (numeroanulada) REFERENCES `facturas`(numerofactura) ON UPDATE CASCADE ON DELETE RESTRICT ');
         
     }
 
