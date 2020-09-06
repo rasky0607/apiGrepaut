@@ -51,7 +51,8 @@ class FacturasController extends Controller
     /**
      * @param mixed $numerofactura
      * @param mixed $idreparacion
-     * Muestra los dato de una factura, es decir la lineas de una factura
+     * Muestra los datos de una factura, es decir la lineas de una factura que son 
+     * optenidas de la tabla serviciosReparaciones indicando el idreparacion
      * @return [Json]
      */
     function lineasDeUnaFactura($numerofactura, $idreparacion)
