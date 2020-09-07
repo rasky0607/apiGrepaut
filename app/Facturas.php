@@ -16,7 +16,7 @@ use Laravel\Lumen\Auth\Authorizable;
  * que defines esta tabla  generada por la cardinalidad N:M estan definidas en sus respectivas clases/tablas padre
  * Usuarios y Empresas.php
  */
-class Usuariosempresas extends Model implements AuthenticatableContract, AuthorizableContract
+class Facturas extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
 

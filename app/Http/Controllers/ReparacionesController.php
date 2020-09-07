@@ -40,7 +40,8 @@ class ReparacionesController extends Controller
         $reparacion = Reparaciones::create([
             'estadoReparacion' => $estadoReparacion,
             'idusuario' => $request->idusuario,
-            'idcoche' => $request->idcoche
+            'idcoche' => $request->idcoche,
+            'empresa'=>$request->empresa
         ]);
         return response()->json(['message' => 'Reparacion registrada con exito', 'Reparacion' => $reparacion], 200);
     }

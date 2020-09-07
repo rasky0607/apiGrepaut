@@ -17,9 +17,11 @@ class CreateTableReparaciones extends Migration
             $table->bigInteger('id', true, true);//clave primaria
             $table->enum('estadoReparacion',['facturado','no facturado']);
             $table->bigInteger('idusuario',false,true)->unsigned();
-            $table->bigInteger('idcoche')->unsigned();//Creamos columna para clave ajena de la tabla coches    
-            $table->foreign('idusuario')->references('id')->on('usuarios')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla usuarios
-            $table->foreign('idcoche')->references('id')->on('coches')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla usuarios
+            $table->bigInteger('idempresa',false,true)->unsigned();//necesitamos este campo, ya que un usuario puede pertenece a varias empresa y puede lugar a mezclar reparciones de diferentes empresas
+            $table->bigInteger('idcoche')->unsigned();    
+            $table->foreign('idusuario')->references('usuario')->on('usuariosempresas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla usuariosempresas
+            $table->foreign('idempresa')->references('empresa')->on('usuariosempresas')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla usuariosempresas
+            $table->foreign('idcoche')->references('id')->on('coches')->onUpdate('cascade');//Referencia de la clave ajena que se prograga desde la tabla coches
             $table->timestamps();
         });
     }

@@ -13,6 +13,7 @@ INSERT INTO `clientes` (`id`, `nombre`, `apellido`, `empresa`, `tlf`, `email`, `
 -- Tabla Coches
 INSERT INTO `coches` (`id`, `matricula`, `idcliente`, `modelo`, `marca`, `created_at`, `updated_at`) VALUES (NULL, 'hfgd7R', '1', 'Megan', 'Renaul', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'T893J', '2', 'Benz', 'Mercedes', CURRENT_DATE(), CURRENT_DATE()), (NULL, '874TY', '1', 'Corola', 'Toyota', CURRENT_DATE(), CURRENT_DATE());
 INSERT INTO `coches` (`id`, `matricula`, `idcliente`, `modelo`, `marca`, `created_at`, `updated_at`) VALUES (NULL, 'hfgd7R', '1', 'Megan', 'Renaul', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'T893J', '2', 'Benz', 'Mercedes', CURRENT_DATE(), CURRENT_DATE());
+INSERT INTO `coches` (`id`, `matricula`, `idcliente`, `modelo`, `marca`, `created_at`, `updated_at`) VALUES (NULL, '7636LB', '3', 'Impresa', 'Subaru', CURRENT_DATE(), CURRENT_DATE());
 
 -- Tabla Servicios
 INSERT INTO `servicios` (`id`, `nombre`, `empresa`, `precio`, `descripcion`, `created_at`, `updated_at`) VALUES (NULL, 'Cambio de capo', '1', '97.21', 'descrip1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'Retrovisor', '1', '25.34', 'desc2', CURRENT_DATE(), CURRENT_DATE());
@@ -22,5 +23,13 @@ INSERT INTO `servicios` (`id`, `nombre`, `empresa`, `precio`, `descripcion`, `cr
 INSERT INTO `usuariosempresas` (`usuario`, `empresa`, `tipoUsuario`, `permisoEscritura`, `created_at`, `updated_at`) VALUES ('1', '1', 'admin', '1', CURRENT_DATE(), CURRENT_DATE()), ('2', '1', 'user', '0', CURRENT_DATE(), CURRENT_DATE()), ('2', '2', 'admin', '1', CURRENT_DATE(), CURRENT_DATE()), ('3', '2', 'admin', '1', CURRENT_DATE(), CURRENT_DATE());
 
 -- Tabla Reparaciones
-INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '1', '1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'no facturado', '1', '1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'no facturado', '2', '2', CURRENT_DATE(), CURRENT_DATE());
-INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '3', '5', CURRENT_DATE(), CURRENT_DATE());
+INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '1','1', '1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'no facturado', '1','1','1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'no facturado', '2','1', '2', CURRENT_DATE(), CURRENT_DATE());
+INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '2','1', '5', CURRENT_DATE(), CURRENT_DATE());
+INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '2','2', '6', CURRENT_DATE(), CURRENT_DATE());
+
+-- Tabla ServiciosReparaciones
+
+-- Tabla Facturas
+INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('1', '1', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL), ('2', '2', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
+INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('3', '3', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
+INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('1', '5', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL), ('2', '4', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);

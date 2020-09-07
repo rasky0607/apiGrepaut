@@ -19,13 +19,13 @@ class FacturasController extends Controller
 {
     /**
      * @param Request $request
-     * Registra una nueva factura insertando todos los campos optenidos
-     * por el parametro request
+     * Registra una nueva factura indicando el idreparacion de la reparacion a facturar
+     * por defecto esta nueva factura se crea cone le stado [VIGENTE] y la fecha del dia actual en el que se crea
      * @return [json]
      */
-    function add(Request $request)
+    function facturarReparacion($idreparacion)
     {
-      
+      //Obtener el siguiente numero de factura para la proxima reparacion de esa empresa
     }
 
     /**
@@ -91,5 +91,9 @@ class FacturasController extends Controller
     function update(Request $request, $idreparacion)
     {
         
+    }
+
+    function proximoNumeroFactura(){
+        $numeroFactura= Facturas::select()->all();
     }
 }
