@@ -29,7 +29,7 @@
     5-El metodo withTimestamps nos permite rellenar los campos created_at y update_at automaticamente
     6-El metodo withPivot nos permite acceder a los campos de la tabla nueva[usuariosempresas] que crea la relacion entre [Usuarios-Empresas] 
          return $this->belongsToMany(Usuarios::class,'usuariosempresas','empresa','usuario')->withTimestamps()->withPivot('tipoUsuario','permisoEscritura');
--RELACIONES ENTRE TABLAS 1:N->Un cliente esta solo en una empresa y una empresa puede tener muchos clientes 
+-RELACIONES ENTRE TABLAS 1:N->Un cliente esta solo en una empresa y una empresa puede tener muchos clientes  [https://desarrolloweb.com/articulos/relaciones-1-a-n-laravel-eloquent.html]
     El lado 1 en el que se usara el metodo "hasMay()" hay que tener en cuenta que se metodo
     NO recibe como primer parametro el nombre de la tabla con la que se relaciona a dierencia de "belongToMany()", si no,
     que solo recibe como unico parametro el nombre de la clave foranea que lo relaciona con la tabla del lado muchos, en este caso (Clientes) es decir fk->[empresa]
@@ -42,6 +42,33 @@
         //$router->get('/{empresa}[/{email}]', ['uses'=> 'UsuariosController@listPorEmpresa']);
         //pasando mas de un campo por la URL
         //$router->delete('/{empresa}/{email}', ['uses'=> 'UsuariosController@midelete']);
+
+
+
+        //Relaciond e claves compuestas en laravel:
+
+        https://stackoverrun.com/es/q/10555817
+        
+        Como los otros han dicho, es necesario utilizar la relación HasMany y HasManyThrough.
+
+Aquí partir de sus definiciones de la tabla, sólo tendrá acceso a:
+
+    Person->BmCoverage(s)
+    Person->BmSecurity(s) de un individuo.
+
+Lo que creo que es el principal problema aquí es la vinculación de la BmSecurity con BmCoverage ya que aparentemente no hay coverage_id por BmSecurity sino más bien, un mapeo compuesto a través de firmId y securityId.
+
+En este caso, Laravel no admite oficialmente claves compuestas desafortunadamente, aunque podría usar un trait like this ... pero también podría lograr lo mismo con algún truco hasMany.
+
+es decir, sobre BmCoverage
+
+$this->hasMany('BmSecurity', 'securityId', 'securityId') 
+ ->andWhere('firmId', '=', $this->firmId); 
+
+Lo mismo se aplica para BmSecurity de BmPerson usando HasManyThrough.
+
+Espero que ayude.
 */
 
 
+// 'numerofactura','idreparacion','idempresa','fecha','estado','numerofacturanulada'

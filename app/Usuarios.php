@@ -45,13 +45,5 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
         return $this->belongsToMany(Empresas::class, 'usuariosempresas', 'usuario', 'empresa')->withTimestamps()->withPivot('tipoUsuario', 'permisoEscritura');
     }
 
-    /**
-     * 1:N Usuarios/Reparaciones-> Una reparacion tiene asociado un unico usuario pero
-     * un usuario puede estar asociado a muchas reparaciones
-     * @return [Reparaciones reparaciones]
-     */
-    public function reparaciones()
-    {
-        return $this->hasMany(Reparaciones::class,'idusuario');
-    }
+   
 }

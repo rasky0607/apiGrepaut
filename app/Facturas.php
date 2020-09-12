@@ -8,14 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 
-/**
- * [Description Usuariosempresas]
- * Clase modelo de la tabla Usuariosempresas.
- * Esta clase/tabla al ser generada por uan relacion de N:M entre Usuarios y Empresas
- * No tiene ninguna funcion que defina u na relacion entre tablas, ya que las relaciones
- * que defines esta tabla  generada por la cardinalidad N:M estan definidas en sus respectivas clases/tablas padre
- * Usuarios y Empresas.php
- */
+
 class Facturas extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use Authenticatable, Authorizable;
@@ -26,7 +19,7 @@ class Facturas extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'numerofactura','idreparacion','fecha','estado','numerofacturanulada'
+        'numerofactura','idreparacion','idempresa','fecha','estado','numerofacturanulada',
     ];
 
     /**
@@ -35,11 +28,9 @@ class Facturas extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $hidden = [
-        'updated_at',
+        'updated_at','created_at'
     ];
 
-    /*Esta clase/tabla al ser generada por uan relacion de N:M entre Usuarios y Empresas
-    No tiene ninguna funcion que defina u na relacion entre tablas, ya que las relaciones
-     que defines esta tabla  generada por la cardinalidad N:M estan definidas en sus respectivas clases/tablas padre
-     Usuarios y Empresas.php*/
+    
+   
 }

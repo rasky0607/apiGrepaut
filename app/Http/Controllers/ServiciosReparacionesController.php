@@ -24,6 +24,9 @@ use App\Reparaciones;
  */
 class ServiciosReparacionesController extends Controller
 {
+
+    public const reparacionFacturado = 'facturado';
+    public const reparacionNoFacturado = 'no facturado';
     /**
      * @param Request $request
      * Registra una nueva reparacion insertando todos los campos optenidos
@@ -35,7 +38,11 @@ class ServiciosReparacionesController extends Controller
         //comprobacion de que el servicio asignado a la reparacion, pertenece a la misma empresa.
         if (!$this->comprobacionEmpresaServicioEmpresaReparacion($request->idreparacion, $request->servicio))
             return response()->json(['Error' => 'El id del servicio asignado no pertenece a la misma empresa que el id de la reparacion indicada, o no existen.', 'id servicio' => $request->servicio, 'id reparacion' => $request->idreparacion,], 202);
-
+        
+        //comprobar que si la reparacion esta o no facturada, en caso de devovler false, es decir [facturada], lanza msg error
+        if(!$this->comprobacionEstadoDeReparacion($request->idreparacion))
+            return response()->json(['Error' => 'Esta reparacion ya esta con estado [facturado] y no se le puede añadir mas serivicios. Nota: cree una reparacion nueva para añadir servicios', 'id reparacion' => $request->idreparacion,], 202);
+        
         $precioServicio = $this->obtenerPrecioDelservicio($request->servicio); //Optenemos el precio del servicio i ndicado                
         $numerotrabajo = $this->obtenerNumeroTrabajoDeReparacion($request->idreparacion);
         $servicioReparacion = Serviciosreparaciones::create([
@@ -64,10 +71,34 @@ class ServiciosReparacionesController extends Controller
     function listServiciosDeUnaReparacion($idreparacion)
     {
         $serviciosReparacion = Serviciosreparaciones::select('numerotrabajo', 'servicio')->where('idreparacion', $idreparacion)->get();
-        return response()->json(['Message' => 'Servicios asignados a la reparacion con id = ' . $idreparacion, 'serviciosReparacion' => $serviciosReparacion], 201);
+        return response()->json(['Message' => 'Servicios asignados a la reparacion con id = ' . $idreparacion, 'serviciosReparacion' => $serviciosReparacion], 200);
     }
 
- 
+    /**
+     * @param mixed $idreparacion
+     * Devuelve una vista estilizada de los serivcios de una reparacion.
+     * Mostando la matricula del vehiculo en lugar del id y nombre del servicio ofrecido
+     * @return [Json]
+     */
+    function vistaListServiciosDeUnaReparacion($idreparacion)
+    {
+        $reparacion = Reparaciones::select('idcoche', 'estadoReparacion')->where('id', $idreparacion)->first();
+        $estado = $reparacion['estadoReparacion'];
+        $matriculaCoche = Coches::select('matricula')->where('id', $reparacion['idcoche'])->first();
+        $matricula = $matriculaCoche['matricula'];
+        $serviciosreparacion = Serviciosreparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
+
+        //Datos de la reparacion con dichso servicios
+        $datosReparacion = array(
+            "idreparacion" => $idreparacion,
+            "matricula" => $matricula,
+            "estado" => $estado
+        );
+
+        return response()->json(['Message' => 'Servicios al vehiculo con matricula [' . $matricula . '] y estado [' . $estado . '] y reparacion con id = ' . $idreparacion, 'Datos Reparacion' => $datosReparacion, 'serviciosReparacion' => $serviciosreparacion], 200);
+    }
+
+
     /**
      * @param mixed $id
      * Elimina un servicio asignado a una reparacion indicando el id de la reparacio y el numero de trabajo pro parametro
@@ -83,7 +114,7 @@ class ServiciosReparacionesController extends Controller
         $objetoEliminado = clone $servicioReparacion->get(); //Necesitamos clonarlo, puesto que una vez se elimina no podemos volver a mostrarlo a diferencia de las busquedas por find id
         $servicioReparacion->delete();
 
-        return response()->json(['message' => 'Se elimino el trabajo '.$numerotrabajo.' de la reparacion con id '.$idreparacion.' con exito', 'servicioReparacion' => $objetoEliminado], 201);
+        return response()->json(['message' => 'Se elimino el trabajo ' . $numerotrabajo . ' de la reparacion con id ' . $idreparacion . ' con exito', 'servicioReparacion' => $objetoEliminado], 201);
     }
 
     /**
@@ -98,41 +129,48 @@ class ServiciosReparacionesController extends Controller
      */
     function update(Request $request, $idreparacion, $numerotrabajo)
     {
-        $servicioReparacion = Serviciosreparaciones::where('idreparacion', $idreparacion)->where('numerotrabajo', $numerotrabajo);
-        $servicio = $request->servicio;
-        $precioServicio = $request->precio; //Se le asigna un precio manualmente si se le indica, en caso contrario coge el de la tabla servicios automaticamente
-        $respuesta = array();
-        if (!is_null($servicio)) {
-            if (is_null($precioServicio)) { //Si no le indicamos un precio manualmente cogera autoamticamente el del servicio
-                $precioServicio = $this->obtenerPrecioDelservicio($servicio);
-                //Actualizamos
-                $servicioReparacion->update([
-                    'servicio' => $servicio,
-                    'precioServicio' => $precioServicio
-                ]);
-                array_push($respuesta, 'servicio'); //Añadimos al final del array
-                array_push($respuesta, 'precio cogido de la tabla servicios automaticamente'); //Añadimos al final del array
-            } else{//Si el precio NO es null, es decir esta escrito manualmente
-                //Actualizamos
-                $servicioReparacion->update([
-                    'servicio' => $servicio,
-                    'precioServicio' => $precioServicio
-                ]);
-                array_push($respuesta, 'servicio'); //Añadimos al final del array
-                array_push($respuesta, 'precio Manual escrito por el usuario'); //Añadimos al final del array
-            }        
-        }else//Si el Servicio es null
-        {
-            if(!is_null($precioServicio))//Si el precio NO es null
+        $reparacion = Reparaciones::select('estadoReparacion')->where('id', $idreparacion)->first();
+      
+        if($this->comprobacionEstadoDeReparacion($idreparacion)) {
+            $servicioReparacion = Serviciosreparaciones::where('idreparacion', $idreparacion)->where('numerotrabajo', $numerotrabajo);
+            $servicio = $request->servicio;
+            $precioServicio = $request->precio; //Se le asigna un precio manualmente si se le indica, en caso contrario coge el de la tabla servicios automaticamente
+            $respuesta = array();
+            if (!is_null($servicio)) {
+                if (is_null($precioServicio)) { //Si no le indicamos un precio manualmente cogera autoamticamente el del servicio
+                    $precioServicio = $this->obtenerPrecioDelservicio($servicio);
+                    //Actualizamos
+                    $servicioReparacion->update([
+                        'servicio' => $servicio,
+                        'precioServicio' => $precioServicio
+                    ]);
+                    array_push($respuesta, 'servicio'); //Añadimos al final del array
+                    array_push($respuesta, 'precio cogido de la tabla servicios automaticamente'); //Añadimos al final del array
+                } else { //Si el precio NO es null, es decir esta escrito manualmente
+                    //Actualizamos
+                    $servicioReparacion->update([
+                        'servicio' => $servicio,
+                        'precioServicio' => $precioServicio
+                    ]);
+                    array_push($respuesta, 'servicio'); //Añadimos al final del array
+                    array_push($respuesta, 'precio Manual escrito por el usuario'); //Añadimos al final del array
+                }
+            } else //Si el Servicio es null
             {
-                $servicioReparacion->update([               
-                    'precioServicio' => $precioServicio
-                ]);
-                array_push($respuesta, 'precio Manual escrito por el usuario'); //Añadimos al final del array
+                if (!is_null($precioServicio)) //Si el precio NO es null
+                {
+                    $servicioReparacion->update([
+                        'precioServicio' => $precioServicio
+                    ]);
+                    array_push($respuesta, 'precio Manual escrito por el usuario'); //Añadimos al final del array
+                }
             }
-        }
 
-        return response()->json(['message' => 'Servicios de la reparacion con Id ' . $idreparacion . ' y numero de trabajo ' . $numerotrabajo . ' actualizado con exito.', 'Modificaciones' => $respuesta, 'servicioreparacion' => $servicioReparacion->get()], 200);
+            return response()->json(['message' => 'Servicios de la reparacion con Id ' . $idreparacion . ' y numero de trabajo ' . $numerotrabajo . ' actualizado con exito.', 'Modificaciones' => $respuesta, 'servicioreparacion' => $servicioReparacion->get()], 200);
+        }else{
+            //No se puede modificar por que la reparacion ya esta facturada
+            return response()->json(['Error' => 'Esta reparacion ya esta con estado [facturado] y no se puede modificar. Nota: cree una reparacion nueva para añadir servicios', 'id reparacion' => $idreparacion,], 202);
+        }
     }
 
     /**
@@ -195,5 +233,21 @@ class ServiciosReparacionesController extends Controller
     {
         $precioServicio = Servicios::select('precio')->where('id', $idServicio)->first(); //Optenemos el precio del servicio   
         return $precioServicio['precio'];
+    }
+
+    /**
+     * @param mixed $idreparacion
+     * Comprueba el estado de la reparacion, si es 'facturado', esta no puede añadir
+     *  ni modificar servicios en la tabla serviciosreparaciones y devolvera false,
+     * en caso contrario si podra, es decir estado 'no facturado' y devolvera true.
+     * @return [Boolean]
+     */
+    function comprobacionEstadoDeReparacion($idreparacion){
+        $reparacion = Reparaciones::select('estadoReparacion')->where('id', $idreparacion)->first();
+        //dd($reparacion['estadoReparacion']);
+        if($reparacion['estadoReparacion']==ServiciosReparacionesController::reparacionNoFacturado)
+            return true;
+
+        return false;
     }
 }

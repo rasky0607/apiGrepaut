@@ -85,27 +85,37 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->group(['prefix' => 'reparaciones'], function () use ($router) {
         $router->post('/', ['uses'=> 'ReparacionesController@add']);
         $router->get('/', ['uses'=> 'ReparacionesController@list']);
-        $router->get('/usuario/{idusuario}', ['uses'=> 'ReparacionesController@listReparacionesUsuario']);
+        $router->get('/usuario/{usuario}/{empresa}', ['uses'=> 'ReparacionesController@listReparacionesUsuario']);//PENDIENTE REVISION
         $router->get('/coche/{idcoche}', ['uses'=> 'ReparacionesController@reparacionesDeUnChoche']);
-        $router->get('/empresa/{idEmpresa}', ['uses'=> 'ReparacionesController@listReparacionesEmpresa']);
+        $router->get('/empresa/{idEmpresa}', ['uses'=> 'ReparacionesController@listReparacionesEmpresa']);//PENDIENE REVISION
         $router->delete('/{id}', ['uses'=> 'ReparacionesController@delete']);
         $router->put('/{id}', ['uses'=> 'ReparacionesController@update']);
         
 
     });
-    //Tabla ServiciosReparaciones - Se convertiran luego en las LineaFacturas
+    //Tabla ServiciosReparaciones - de esta se obtienen las LineaFacturas al mostrar una factura en detalle
     $router->group(['prefix' => 'serviciosreparaciones'], function () use ($router) {
         $router->post('/', ['uses'=> 'ServiciosReparacionesController@add']);
         $router->get('/', ['uses'=> 'ServiciosReparacionesController@list']);
         $router->get('/{idreparacion}', ['uses'=> 'ServiciosReparacionesController@listServiciosDeUnaReparacion']);
+        $router->get('/detalles/{idreparacion}', ['uses'=> 'ServiciosReparacionesController@vistaListServiciosDeUnaReparacion']);
         $router->delete('/{idreparacion}/{numerotrabajo}', ['uses'=> 'ServiciosReparacionesController@delete']);
         $router->put('/{idreparacion}/{numerotrabajo}', ['uses'=> 'ServiciosReparacionesController@update']);
         
 
     });
     //Tabla Facturas
+    $router->group(['prefix' => 'facturas'], function () use ($router) {
+        $router->post('/{idreparacion}', ['uses'=> 'FacturasController@nuevaFactura']);
+        $router->get('/', ['uses'=> 'FacturasController@list']);
+        $router->post('/lineasfactura/{idreparacion}', ['uses'=> 'FacturasController@lineasFactura']);//PENDIENTE
+        $router->get('/empresa/{idempresa}', ['uses'=> 'FacturasController@listFacturasEmpresa']);
+        $router->get('vigentes/empresa/{idempresa}', ['uses'=> 'FacturasController@listFacturasEmpresaVigentes']);
+        $router->put('/anulardereparacion/{idreparacionParaAnular}/por/{idreparacionNueva}', ['uses'=> 'FacturasController@anularFactura']);
+        
+        
 
-    //Tabla LineaFacturas
+    });
 
     
 });
