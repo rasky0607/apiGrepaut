@@ -114,7 +114,46 @@ class FacturasController extends Controller
      * @return [Json]
      */
     function lineasFactura($idreparacion){
+       
+        //Datos Factura
+        $factura=Facturas::select('numerofactura','estado')->where('idreparacion',$idreparacion)->first();
+        $numeroFactura=$factura['numerofactura'];
+        $estadoFactura = $factura['estado'];
 
+        //Datos Coche
+        $reparacion = Reparaciones::select('idcoche','idusuario')->where('id', $idreparacion)->first();
+        $matriculaCoche = Coches::select('matricula')->where('id', $reparacion['idcoche'])->first();
+        $matricula = $matriculaCoche['matricula'];
+
+        //Datos Cliente
+        $cliente=Clientes::select('nombre','apellido')->whereIn('id',Coches::select('idcliente')->where('id',$reparacion['idcoche'])->first())->first();
+        $nombreCliente=$cliente['nombre'].' '.$cliente['apellido'];
+
+        //Datos Usuario
+        $usuario=Usuarios::select('nombre')->where('id',$reparacion['idusuario'])->first();
+        $nombreUsuario=$usuario['nombre'];
+
+        //Datos Servicios reparacion [Lineas factura]
+        $lineasFactura = Serviciosreparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
+        
+        //Calculo de precio total
+        $precioBruto=0;
+        foreach($lineasFactura as $item)
+        {
+            $precioBruto+=$item['precioServicio'];        
+        }
+
+        //Datos de la Factura con dichso servicios
+        $datosFactura = array(
+            "numeroFactura" => $numeroFactura,
+            "estado" => $estadoFactura,
+            "matricula" => $matricula,
+            "cliente"=>$nombreCliente,
+            "Tecnico"=>$nombreUsuario,
+            "Precio bruto total"=>$precioBruto
+        );
+
+        return response()->json(['Message' =>   'Lineas de factura numero '.$numeroFactura.' de reparacion '.$idreparacion, 'Encabezado Factura' => $datosFactura, 'Lineas Factura' => $lineasFactura], 200);
     }
 
     /**
