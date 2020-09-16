@@ -61,7 +61,7 @@ class ReparacionesController extends Controller
      * Listar reparaciones de una empresa concreta dado un id de empresa
      * @return [json]
      */
-    function listReparacionesEmpresa($idEmpresa)// ####PENDIENTE REVISION YA QUE SE AÑADIO EL CAMPO EMPRESA A REPARACIONES#######
+    function listReparacionesEmpresa($idEmpresa)
     {      
         $reparacionesEmpresa=Reparaciones::where('idempresa',$idEmpresa)->get();
         if(sizeof($reparacionesEmpresa)<=0)//No encontro el reparaciones
@@ -75,7 +75,7 @@ class ReparacionesController extends Controller
      * Listar de reparaciones de un usuario o tecnico concreto pasando un id de usuario y un id de empresa
      * @return [json]
      */
-    function listReparacionesUsuario($usuario,$empresa)// ####PENDIENTE REVISION YA QUE SE AÑADIO EL CAMPO EMPRESA A REPARACIONES####### revisar clases USuariosEmpresas y Reparaciones
+    function listReparacionesUsuario($usuario,$empresa)
     {
         $reparacionesUsuario=Reparaciones::where('idusuario',$usuario)->where('idempresa',$empresa)->get();
         if(sizeof($reparacionesUsuario)<=0)//No encontro reparaciones de ese usuario de esa empresa

@@ -23,7 +23,7 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
- $app->withFacades();//Permite gestionar los objetos devueltos por la BD
+ $app->withFacades();//Permite gestionar los objetos devueltos por la BD y para el tema Emails
 
  $app->withEloquent();//Devuelve un objeto de la BD [en este caso un obejto User.php] (en lugar de string de los campos como ocurriria con una consulta normal)
 
@@ -114,6 +114,25 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__.'/../routes/web.php';
+});
+
+/*
+Envio de Emails 
+Usando : 
+    -https://github.com/s-ichikawa/laravel-sendgrid-driver 
+    -SendGird
+*/
+
+
+
+$app->configure('mail');
+$app->configure('services');
+$app->register(Sichikawa\LaravelSendgridDriver\MailServiceProvider::class);
+
+unset($app->availableBindings['mailer']);
+
+collect(scandir(__DIR__ . '/../config'))->each(function ($item) use ($app) {
+    $app->configure(basename($item, '.php'));
 });
 
 return $app;
