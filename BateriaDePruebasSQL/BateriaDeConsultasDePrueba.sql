@@ -23,13 +23,17 @@ INSERT INTO `servicios` (`id`, `nombre`, `empresa`, `precio`, `descripcion`, `cr
 INSERT INTO `usuariosempresas` (`usuario`, `empresa`, `tipoUsuario`, `permisoEscritura`, `created_at`, `updated_at`) VALUES ('1', '1', 'admin', '1', CURRENT_DATE(), CURRENT_DATE()), ('2', '1', 'user', '0', CURRENT_DATE(), CURRENT_DATE()), ('2', '2', 'admin', '1', CURRENT_DATE(), CURRENT_DATE()), ('3', '2', 'admin', '1', CURRENT_DATE(), CURRENT_DATE());
 
 -- Tabla Reparaciones
-INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '1','1', '1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'no facturado', '1','1','1', CURRENT_DATE(), CURRENT_DATE()), (NULL, 'no facturado', '2','1', '2', CURRENT_DATE(), CURRENT_DATE());
+INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES 
+(NULL, 'facturado', '1','1', '1', CURRENT_DATE(), CURRENT_DATE()), 
+(NULL, 'facturado', '1','1','1', CURRENT_DATE(), CURRENT_DATE()), 
+(NULL, 'facturado', '2','1', '2', CURRENT_DATE(), CURRENT_DATE());
 INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '2','1', '5', CURRENT_DATE(), CURRENT_DATE());
-INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'no facturado', '2','2', '6', CURRENT_DATE(), CURRENT_DATE());
+INSERT INTO `reparaciones` (`id`, `estadoReparacion`, `idusuario`,`idempresa`, `idcoche`, `created_at`, `updated_at`) VALUES (NULL, 'facturado', '2','2', '6', CURRENT_DATE(), CURRENT_DATE());
 
 -- Tabla ServiciosReparaciones
 
 -- Tabla Facturas
-INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('1', '1', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL), ('2', '2', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
-INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('3', '3', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
-INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('1', '5', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL), ('2', '4', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
+INSERT INTO `facturas` (`numerofactura`, `idreparacion`,`idempresa`, `fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('1', '1','1', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL),
+ ('2', '2','1', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
+INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `idempresa`,`fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('3', '3','1', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);
+INSERT INTO `facturas` (`numerofactura`, `idreparacion`, `idempresa`,`fecha`, `estado`, `numerofacturanulada`, `idreparacionanulada`, `created_at`, `updated_at`) VALUES ('1', '5','2', CURRENT_DATE(), 'vigente', NULL, NULL, NULL, NULL);

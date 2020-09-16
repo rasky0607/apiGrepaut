@@ -22,7 +22,7 @@ class Reparaciones extends Model implements AuthenticatableContract, Authorizabl
      * @var array
      */
     protected $fillable = [
-        'id','estadoReparacion', 'idusuario','idcoche'
+        'id','estadoReparacion', 'idusuario','idempresa','idcoche',
     ];
 
     /**
@@ -46,12 +46,12 @@ class Reparaciones extends Model implements AuthenticatableContract, Authorizabl
     }
 
     /**
-     * 1:N Usuarios/Reparaciones -> Un usuario puede estar asociado a varias reparaciones,
-     *  pero una reparacion solo tine un usuario
-     * @return [Usuarios usuario]
+     * 1:N usuariosempresas/Reparaciones -> Un usuario de una empresa puede estar asociado a varias reparaciones,
+     *  pero una reparacion solo tine un usuario de una empresa
+     * @return [Usuariosempresas usuariosempresas]
      */
-    public function usuario(){
-        return $this->belongsTo(Usuarios::class,'usuarios');
-    }
+    /*public function usuariosempresas(){
+        return $this->HasManyThrough(Usuariosempresas::class,'usuario','idusuario')->andWhere('empresa','=',$this->empresa);
+    }*/
    
 }

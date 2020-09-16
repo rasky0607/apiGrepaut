@@ -42,4 +42,15 @@ class Usuariosempresas extends Model implements AuthenticatableContract, Authori
     No tiene ninguna funcion que defina u na relacion entre tablas, ya que las relaciones
      que defines esta tabla  generada por la cardinalidad N:M estan definidas en sus respectivas clases/tablas padre
      Usuarios y Empresas.php*/
+
+     
+    /**
+     * 1:N UsuariosEmpresas/Reparaciones-> Una reparacion tiene asociado un unico usuario de una empresa pero
+     * un usuario de una empresa puede estar asociado a muchas reparaciones
+     * @return [Reparaciones reparaciones]
+     */
+    /* public function reparaciones()
+     {
+         return $this->HasManyThrough(Reparaciones::class,'usuario','idusuario')->andWhere('empresa','=',$this->empresa);
+     }*/
 }

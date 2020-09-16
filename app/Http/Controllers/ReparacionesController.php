@@ -33,15 +33,16 @@ class ReparacionesController extends Controller
         //Comprobacion de que el id del usuario introducido se corresponde la empresa a la que pertenece el coche
         $idcoche = $request->idcoche;
         $idusuario = $request->idusuario;
+        $idempresa=$request->idempresa;
         $estadoReparacion='No facturado';//Valor por defecto al crear una reparacion
-        if (!$this->comprobacionCocheYusuario($idusuario, $idcoche))
-            return response()->json(['Error' => 'El id del coche y el id de usuario[el tecnico] no pertenecen a la mism empresa', 'id de coche' => $idcoche, 'id de usuario' => $idusuario], 202);
+        if (!$this->comprobacionCocheYusuarioYEmpresa($idusuario, $idcoche,$idempresa))
+            return response()->json(['Error' => 'El id del coche y el id de usuario [el tecnico] no pertenecen a la empresa indicada en el campo idEmpresa', 'id de coche' => $idcoche, 'id de usuario' => $idusuario, 'id de empresa '=>$idempresa], 202);
 
         $reparacion = Reparaciones::create([
             'estadoReparacion' => $estadoReparacion,
             'idusuario' => $request->idusuario,
             'idcoche' => $request->idcoche,
-            'empresa'=>$request->empresa
+            'idempresa'=>$request->idempresa
         ]);
         return response()->json(['message' => 'Reparacion registrada con exito', 'Reparacion' => $reparacion], 200);
     }
@@ -61,26 +62,26 @@ class ReparacionesController extends Controller
      * @return [json]
      */
     function listReparacionesEmpresa($idEmpresa)
-    {
-        $reparaciones = Reparaciones::select()->whereIn('idusuario', Usuariosempresas::select('usuario')->where('empresa', $idEmpresa)->get())->get();
-        if(sizeof($reparaciones)<=0)//No encontro el cliente 
-            return response()->json(['Error' => 'No existe reparaciones registradas en la empresa indicada.', 'Id de empresa' => $idEmpresa], 202);
-        
-        return response()->json($reparaciones);
+    {      
+        $reparacionesEmpresa=Reparaciones::where('idempresa',$idEmpresa)->get();
+        if(sizeof($reparacionesEmpresa)<=0)//No encontro el reparaciones
+            return response()->json(['Error' => 'No existen reparaciones para ese id de empresa.',  'Id de empresa'=>$idEmpresa], 202);
+            
+        return response()->json($reparacionesEmpresa);
     }
 
     /**
      * @param mixed $idusuario
-     * Listar de reparaciones de un usuario o tecnico concreto pasando un id de usuario
+     * Listar de reparaciones de un usuario o tecnico concreto pasando un id de usuario y un id de empresa
      * @return [json]
      */
-    function listReparacionesUsuario($idusuario)
+    function listReparacionesUsuario($usuario,$empresa)
     {
-        $usuario = Usuarios::find($idusuario);
-        if(is_null($usuario))//No encontro el usuario
-            return response()->json(['Error' => 'No existe ese tecnico o id de usuario.', 'Id de usuario' => $idusuario], 202);
+        $reparacionesUsuario=Reparaciones::where('idusuario',$usuario)->where('idempresa',$empresa)->get();
+        if(sizeof($reparacionesUsuario)<=0)//No encontro reparaciones de ese usuario de esa empresa
+            return response()->json(['Error' => 'No existen reparaciones para  ese tecnico o id de usuario asociado a esta empresa.', 'Id de usuario' => $usuario, 'Id de empresa'=>$empresa], 202);
 
-        return response()->json($usuario->reparaciones);
+        return response()->json($reparacionesUsuario);
     }
 
     /**
@@ -124,7 +125,7 @@ class ReparacionesController extends Controller
      * pasando el id de la reparacion por parametro
      * @return [json]
      */
-    function update(Request $request, $id) //### PENDIENTE DE TESTEO ##
+    function update(Request $request, $id) 
     {
         $reparacion = Reparaciones::findOrFail($id);
         $estadoReparacion = $request->estadoReparacion;
@@ -183,11 +184,51 @@ class ReparacionesController extends Controller
     /**
      * @param mixed $idCliente
      * @param mixed $idCoche
+     * @param mixed $idEmpresa
      * Comprueba con el id del del coche que pertenece a un id de cliente,
      * corresponda con la misma empresa que el id del usuario.
      * Si encuentra alguna coincidencia devuelve true,
-     * en caso contrario false
+     * en caso contrario false.
+     * En caso de pertenecer ambos a la misma empresa, se comprueba que el usuario,
+     * pertenezca al misma empresa que el campo idEmpresa introducido para el registro de la nueva reparacion
+     * en caso correcto devovlera true, en caso contrario false 
      * @return [Booblean bool]
+     */
+    function comprobacionCocheYusuarioYEmpresa($idusuario, $idcoche,$idEmpresa)
+    {
+        //Sacamos el id de la empresa a la que pertenece el coche a traves del cliente con el que se asocia
+        //SELECT empresa from clientes where id in( SELECT idcliente FROM `coches` WHERE id=1) 
+        $empresaDelCoche = Clientes::select('empresa')->whereIn('id', Coches::select('idcliente')->where('id', $idcoche))->get();
+        //Sacamos el id de empresa del usuario que se asocia con la reparacion para comprarar
+        //SELECT empresa FROM `usuariosempresas` WHERE usuario=1 
+        $empresaDelUsuario = Usuariosempresas::select('empresa')->where('usuario', $idusuario)->get();
+        if(sizeof($empresaDelCoche)<=0 || sizeof($empresaDelUsuario)<=0 )//Si no encontro resultado en alguna de las dos consultas
+            return false;
+
+        //Recorremos el numero de empresas a las que petence el usuario
+        foreach($empresaDelUsuario as $valor)
+        {
+            //echo  $valor['empresa'];
+            if ($empresaDelCoche[0]['empresa'] == $valor['empresa']) //Pertenecen a la misma empresa
+            {
+                if($valor['empresa']==$idEmpresa)//Comprueba si el idEmpresa introducido para la reparacion es correcto respecto al id Usuario introducido
+                    return true;
+
+                return false;//Si el usuario no pertenece al idEmpresa introducido para el registro de la reparacion
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param mixed $idusuario
+     * @param mixed $idcoche
+     * Comprueba con el id del del coche que pertenece a un id de cliente,
+     * corresponda con la misma empresa que el id del usuario.
+     * Si encuentra alguna coincidencia devuelve true,
+     * en caso contrario false.
+     * @return [Boolean bool]
      */
     function comprobacionCocheYusuario($idusuario, $idcoche)
     {
@@ -199,9 +240,18 @@ class ReparacionesController extends Controller
         $empresaDelUsuario = Usuariosempresas::select('empresa')->where('usuario', $idusuario)->get();
         if(sizeof($empresaDelCoche)<=0 || sizeof($empresaDelUsuario)<=0 )//Si no encontro resultado en alguna de las dos consultas
             return false;
-        if ($empresaDelCoche[0]['empresa'] == $empresaDelUsuario[0]['empresa']) //Pertenecen a la misma empresa
-            return true;
+
+         //Recorremos el numero de empresas a las que pertence el usuario
+         foreach($empresaDelUsuario as $valor)
+         {
+             //echo  $valor['empresa'];
+             if ($empresaDelCoche[0]['empresa'] == $valor['empresa']) //Pertenecen a la misma empresa
+             {
+                return true;
+             }
+         }    
 
         return false;
     }
+
 }

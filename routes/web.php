@@ -85,31 +85,91 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->group(['prefix' => 'reparaciones'], function () use ($router) {
         $router->post('/', ['uses'=> 'ReparacionesController@add']);
         $router->get('/', ['uses'=> 'ReparacionesController@list']);
-        $router->get('/usuario/{idusuario}', ['uses'=> 'ReparacionesController@listReparacionesUsuario']);
+        $router->get('/usuario/{usuario}/{empresa}', ['uses'=> 'ReparacionesController@listReparacionesUsuario']);//PENDIENTE REVISION
         $router->get('/coche/{idcoche}', ['uses'=> 'ReparacionesController@reparacionesDeUnChoche']);
-        $router->get('/empresa/{idEmpresa}', ['uses'=> 'ReparacionesController@listReparacionesEmpresa']);
+        $router->get('/empresa/{idEmpresa}', ['uses'=> 'ReparacionesController@listReparacionesEmpresa']);//PENDIENE REVISION
         $router->delete('/{id}', ['uses'=> 'ReparacionesController@delete']);
         $router->put('/{id}', ['uses'=> 'ReparacionesController@update']);
         
 
     });
-    //Tabla ServiciosReparaciones - Se convertiran luego en las LineaFacturas
+    //Tabla ServiciosReparaciones - de esta se obtienen las LineaFacturas al mostrar una factura en detalle
     $router->group(['prefix' => 'serviciosreparaciones'], function () use ($router) {
         $router->post('/', ['uses'=> 'ServiciosReparacionesController@add']);
         $router->get('/', ['uses'=> 'ServiciosReparacionesController@list']);
         $router->get('/{idreparacion}', ['uses'=> 'ServiciosReparacionesController@listServiciosDeUnaReparacion']);
+        $router->get('/detalles/{idreparacion}', ['uses'=> 'ServiciosReparacionesController@vistaListServiciosDeUnaReparacion']);
         $router->delete('/{idreparacion}/{numerotrabajo}', ['uses'=> 'ServiciosReparacionesController@delete']);
         $router->put('/{idreparacion}/{numerotrabajo}', ['uses'=> 'ServiciosReparacionesController@update']);
         
 
     });
     //Tabla Facturas
+    $router->group(['prefix' => 'facturas'], function () use ($router) {
+        $router->post('/{idreparacion}', ['uses'=> 'FacturasController@nuevaFactura']);
+        $router->get('/', ['uses'=> 'FacturasController@list']);
+        $router->get('/lineasfactura/{idreparacion}', ['uses'=> 'FacturasController@lineasFactura']);//PENDIENTE
+        $router->get('/empresa/{idempresa}', ['uses'=> 'FacturasController@listFacturasEmpresa']);
+        $router->get('vigentes/empresa/{idempresa}', ['uses'=> 'FacturasController@listFacturasEmpresaVigentes']);
+        $router->put('/anulardereparacion/{idreparacionParaAnular}/por/{idreparacionNueva}', ['uses'=> 'FacturasController@anularFactura']);
+         
+    });
 
-    //Tabla LineaFacturas
+    //Emails
 
     
 });
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
+});
+
+//Emails [EN P RUEBAS]
+
+$router->get('/test_mail', function () {
+    $data = ['test data'];
+    try {
+
+        \Illuminate\Support\Facades\Mail::send('emails.test',$data, function (\Illuminate\Mail\Message $message) {
+            $message->from('esviasalpa@gmail.com', 'Grepaut Team')
+            ->to('javieramado7@gmail.com')->subject('Welcome to grepaut!');
+         });
+
+        /* \Illuminate\Support\Facades\Mail::send('emails.test', $data, function (\Illuminate\Mail\Message $message) {
+            $message
+                ->to('esviasalpa@example.com', 'Grepaut')
+                ->from('esviasalpa@example.com', 'Pablo Lopez')
+                ->replyTo('esviasalpa@bar.com', 'foobar')
+                ->subject('Welcome to grepaut!')
+                ->embedData([
+                    'personalizations' => [
+                        [
+                            'to' => [
+                                'email' => 'user1@example.com',
+                                'name'  => 'user1',
+                            ],
+                            'substitutions' => [
+                                '-email-' => 'user1@example.com',
+                            ],
+                        ],
+                        [
+                            'to' => [
+                                'email' => 'user2@example.com',
+                                'name'  => 'user2',
+                            ],
+                            'substitutions' => [
+                                '-email-' => 'user2@example.com',
+                            ],
+                        ],
+                    ],
+                    'categories' => ['user_group1'],
+                    'custom_args' => [
+                        'user_id' => "123" // Make sure this is a string value
+                    ]
+                ], 'sendgrid/x-smtpapi');
+        });*/
+    } catch (Exception $exception) {
+        dd($exception->getMessage());
+    }
+    dd('Mail sent');
 });
