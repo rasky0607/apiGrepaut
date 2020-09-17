@@ -131,8 +131,8 @@ $router->get('/test_mail', function () {
     try {
 
         \Illuminate\Support\Facades\Mail::send('emails.test',$data, function (\Illuminate\Mail\Message $message) {
-            $message->from('esviasalpa@gmail.com', 'Grepaut Team')
-            ->to('eam.lopezsantanapablo1soc@gmail.com')->subject('Welcome to grepaut!');
+            $message->from('devsan.adm@gmail.com', 'Grepaut Team')
+            ->to('esviasalpa@gmail.com')->subject('Bienvenido a grepaut!');
          });
 
         /* \Illuminate\Support\Facades\Mail::send('emails.test', $data, function (\Illuminate\Mail\Message $message) {
