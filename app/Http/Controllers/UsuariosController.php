@@ -54,7 +54,7 @@ class UsuariosController extends Controller
             $token = Str::random(10);
             //Actualizamos/guardamnos el nuevo token en la BD
             $user= $this->actualizarToken($user[0]['id'],$token);
-            return response()->json(['message' => 'Credenciales correctas','token '=>$token],200);
+            return response()->json(['message' => 'Credenciales correctas','token'=>$token],200);
         } else {
             //Email o contraseña incorrectas
             return response()->json(['message' => 'Email o Password incorrecto'],202);
