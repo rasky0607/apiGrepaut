@@ -13,7 +13,7 @@ class CreateTableServiciosReparaciones extends Migration
      */
     public function up()
     {
-        Schema::create('serviciosReparaciones', function (Blueprint $table) {
+        Schema::create('serviciosreparaciones', function (Blueprint $table) {
             $table->bigInteger('idreparacion',false,false)->unsigned();//clave ajena de la tabla reparaciones (clave primaria)
             $table->integer('numerotrabajo', false, false)->unsigned();//numero del trabajo  asginados a una reparacion concreta (clave primaria)
             $table->bigInteger('servicio',false,false)->unsigned();//clave columna para la clave ajena de la tabla servicios
@@ -36,6 +36,6 @@ class CreateTableServiciosReparaciones extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('serviciosReparaciones');
+        Schema::dropIfExists('serviciosreparaciones');
     }
 }

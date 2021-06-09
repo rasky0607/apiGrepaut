@@ -41,9 +41,10 @@ $router->group(['middleware' => ['auth']], function () use ($router){
       $router->group(['prefix' => 'usuariosempresas'], function () use ($router) {
         $router->post('/', ['uses'=> 'UsuariosEmpresasController@add']);
         $router->get('/', ['uses'=> 'UsuariosEmpresasController@list']);
-        $router->get('/{idUsuario}/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@buscarUnUsuarioDeUnaEmpresa']);
+        //$router->get('/{idUsuario}/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@buscarUnUsuarioDeUnaEmpresa']);
         $router->get('/misempresas/{idUsuario}', ['uses'=> 'UsuariosEmpresasController@empresasDelUsuario']);
-        $router->get('/empresa/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@buscarUsuariosDeEmpresa']);
+                     
+        //$router->get('/empresa/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@buscarUsuariosDeEmpresa']);
         $router->delete('/{idUsuario}/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@delete']);
         $router->put('/{idUsuario}/{idEmpresa}', ['uses'=> 'UsuariosEmpresasController@update']);
         

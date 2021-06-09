@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Serviciosreparaciones;
+use App\ServiciosReparaciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 //Añadido
@@ -45,7 +45,7 @@ class ServiciosReparacionesController extends Controller
         
         $precioServicio = $this->obtenerPrecioDelservicio($request->servicio); //Optenemos el precio del servicio i ndicado                
         $numerotrabajo = $this->obtenerNumeroTrabajoDeReparacion($request->idreparacion);
-        $servicioReparacion = Serviciosreparaciones::create([
+        $servicioReparacion = ServiciosReparaciones::create([
             'idreparacion' => $request->idreparacion,
             'numerotrabajo' => $numerotrabajo,
             'servicio' => $request->servicio,
@@ -61,7 +61,8 @@ class ServiciosReparacionesController extends Controller
      */
     function list()
     {
-        return response()->json(Serviciosreparaciones::all());
+        
+        return response()->json(ServiciosReparaciones::all());
     }
 
     /**
@@ -70,7 +71,7 @@ class ServiciosReparacionesController extends Controller
      */
     function listServiciosDeUnaReparacion($idreparacion)
     {
-        $serviciosReparacion = Serviciosreparaciones::select('numerotrabajo', 'servicio')->where('idreparacion', $idreparacion)->get();
+        $serviciosReparacion = ServiciosReparaciones::select('numerotrabajo', 'servicio')->where('idreparacion', $idreparacion)->get();
         return response()->json(['Message' => 'Servicios asignados a la reparacion con id = ' . $idreparacion, 'serviciosReparacion' => $serviciosReparacion], 200);
     }
 
@@ -86,7 +87,7 @@ class ServiciosReparacionesController extends Controller
         $estado = $reparacion['estadoReparacion'];
         $matriculaCoche = Coches::select('matricula')->where('id', $reparacion['idcoche'])->first();
         $matricula = $matriculaCoche['matricula'];
-        $serviciosreparacion = Serviciosreparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
+        $serviciosreparacion = ServiciosReparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
 
         //Datos de la reparacion con dichso servicios
         $datosReparacion = array(

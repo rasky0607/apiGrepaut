@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Empresas;
 use Illuminate\Http\Request;
-use App\Usuariosempresas;
+use App\UsuariosEmpresas;
 use App\Usuarios;
 use Illuminate\Support\Str;
 
@@ -55,8 +55,8 @@ class UsuariosEmpresasController extends Controller
    */
   function empresasDelUsuario($idUsuario)
   {
-    $usuario = Usuarios::findOrFail($idUsuario);
-    return response()->json($usuario->empresas);
+    $usuariosEmpresas = UsuariosEmpresas::where('usuario', $idUsuario)->get();
+    return $usuariosEmpresas;
   }
 
   /**
@@ -67,7 +67,7 @@ class UsuariosEmpresasController extends Controller
    */
   function buscarUsuariosDeEmpresa($idEmpresa)
   {
-    $empresa = Empresas::findOrFail($idEmpresa);
+    $empresa = Empresas::findOrFail($idEmpresa)->get();
     if(is_null($empresa))//No encontro la empresa
       return response()->json(['Error' => 'No existe ese id de empresa.', 'Id de empresa' => $empresa], 202);
 
@@ -80,9 +80,11 @@ class UsuariosEmpresasController extends Controller
    * Busca una relacion concreta entre un usuario y una empresa
    * @return [Json]
    */
-  function buscarUnUsuarioDeUnaEmpresa($idUsuario,$idEmpresa)
+  function buscarUnUsuarioDeUnaEmpresa2($idUsuario,$idEmpresa)
   {
-    $usuariosEmpresas = Usuariosempresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa);
+      echo "mamon";
+      return;
+    $usuariosEmpresas = UsuariosEmpresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
     if (sizeof($usuariosEmpresas->get()) <= 0) //Si NO encontro algun resultado
     {
       return response()->json(['message' => 'No existe una relacion entre el usuario y la empresa con dichos Ids.', 'Id usuario:' => $idUsuario, 'Id empresa' => $idEmpresa], 202);
@@ -98,7 +100,7 @@ class UsuariosEmpresasController extends Controller
    */
   function list()
   {
-    return response()->json(Usuariosempresas::all());
+    return response()->json(UsuariosEmpresas::all());
   }
   #endregion 
 

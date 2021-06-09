@@ -49,12 +49,13 @@ class UsuariosController extends Controller
         $password =$request->password;
         $user= Usuarios::select('id')->where('email', $email)->where('password', $password)->get();
         if (sizeof($user)== 1) //Logeo correcto
-        {
+        {   //Obtenemos el id del usuario
+	    $id = $user[0]['id'];
             //Generamos un nuevo token y lo devolvemos al usuario
             $token = Str::random(10);
             //Actualizamos/guardamnos el nuevo token en la BD
             $user= $this->actualizarToken($user[0]['id'],$token);
-            return response()->json(['message' => 'Credenciales correctas','token'=>$token],200);
+            return response()->json(['message' => 'Credenciales correctas','id'=>$id,'token'=>$token],200);
         } else {
             //Email o contraseña incorrectas
             return response()->json(['message' => 'Email o Password incorrecto'],202);
