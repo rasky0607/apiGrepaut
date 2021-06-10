@@ -7,7 +7,8 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
-
+use App\Empresas;
+use App\Usuarios;
 /**
  * [Description Usuariosempresas]
  * Clase modelo de la tabla Usuariosempresas.

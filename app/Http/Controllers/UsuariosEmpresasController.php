@@ -67,11 +67,17 @@ class UsuariosEmpresasController extends Controller
    */
   function buscarUsuariosDeEmpresa($idEmpresa)
   {
-    $empresa = Empresas::findOrFail($idEmpresa)->get();
-    if(is_null($empresa))//No encontro la empresa
-      return response()->json(['Error' => 'No existe ese id de empresa.', 'Id de empresa' => $empresa], 202);
+    //$empresa = Empresas::findOrFail($idEmpresa)->get();
+      $usuariosEmpresas = Usuariosempresas::select('usuarios.id as idUsuario', 'usuarios.email', 'usuariosempresas.empresa', 'usuariosempresas.tipoUsuario', 'usuariosempresas.permisoEscritura')
+          ->join('usuarios', 'usuarios.id', '=', 'usuariosempresas.usuario')
+          ->where('usuariosempresas.empresa', $idEmpresa)->get();
 
-    return response()->json($empresa->usuarios);//Devuelve todos los usuarios relacionados con la empresa
+    if(is_null($usuariosEmpresas))//No encontro la empresa
+      return response()->json(['Error' => 'No existe ese id de empresa.', 'Id de empresa' => $usuariosEmpresas], 202);
+
+    //return response()->json($empresa->usuarios);//Devuelve todos los usuarios relacionados con la empresa
+
+      return response()->json($usuariosEmpresas);
   }
 
   /**
@@ -80,18 +86,19 @@ class UsuariosEmpresasController extends Controller
    * Busca una relacion concreta entre un usuario y una empresa
    * @return [Json]
    */
-  function buscarUnUsuarioDeUnaEmpresa2($idUsuario,$idEmpresa)
+  function buscarUnUsuarioDeUnaEmpresa($idUsuario,$idEmpresa)
   {
-      echo "mamon";
-      return;
-    $usuariosEmpresas = UsuariosEmpresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
-    if (sizeof($usuariosEmpresas->get()) <= 0) //Si NO encontro algun resultado
+      $usuariosEmpresas = Usuariosempresas::select('usuarios.id as idUsuario', 'usuarios.email', 'usuariosempresas.empresa', 'usuariosempresas.tipoUsuario', 'usuariosempresas.permisoEscritura')
+          ->join('usuarios', 'usuarios.id', '=', 'usuariosempresas.usuario')
+          ->where('usuariosempresas.empresa', $idEmpresa)->where('usuariosempresas.usuario',$idUsuario)->get();
+    //$usuariosEmpresas = UsuariosEmpresas::where('usuario', $idUsuario)->where('empresa', $idEmpresa)->get();
+    if (sizeof($usuariosEmpresas) <= 0) //Si NO encontro algun resultado
     {
       return response()->json(['message' => 'No existe una relacion entre el usuario y la empresa con dichos Ids.', 'Id usuario:' => $idUsuario, 'Id empresa' => $idEmpresa], 202);
     }
     //Si encontro un resultado 
   
-    return response()->json(['message' => 'Relacion entre Usuario y Empresa encontrada con exito', 'Relacion  encontrada' => $usuariosEmpresas->get()], 201);
+    return response()->json($usuariosEmpresas, 201);
   }
 
   /**
