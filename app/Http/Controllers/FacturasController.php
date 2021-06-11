@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Serviciosreparaciones;
+use App\ServiciosReparaciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 //Añadido
@@ -99,26 +99,30 @@ class FacturasController extends Controller
         return response()->json($facturasEmpresa, 200);
     }
 
-    /** ****PENDIENTE******
-     * @param mixed $idempresa
+    /**
+     * @param mixed $idusuario
      * Lista facturas de unae mpresa determinada con estado Vigente
      * @return [Json]
      */
-    function listFacturasEmpresaVigentes($idempresa) {
-        $factura =Facturas::where('idempresa',$idempresa)->where('estado',FacturasController::facturaVigente)->get();
+    function listFacturasEmpresaVigentes($idusuario) {
+        $idEmpresa = Usuarios::select('idempresa')->where('id', $idusuario)->get();
+        //select * from facturas where idusuario in (select id from usuarios where idempresa = 1) and estado = 'vigente';;
+        $factura=Facturas::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->where('estado','vigente')->get();
+        
+        //$factura =Facturas::where('idempresa',$idempresa)->where('estado',FacturasController::facturaVigente)->get();
         if(sizeof($factura)<=0)
             return response()->json(['Error' => 'No hay facturas resgistradas con estado [Vigente] aun en la empresa con id '.$idempresa], 202);
         return response()->json(['Message' => 'Facturas de la empresa', 'Facturas' => $factura], 200);
     }
 
     
-    /** ****PENDIENTE******
+    /*
      * @param mixed $idreparacion
      * Dado un id de reparacion mostramos los servicios realizados en esta
      * y calculamos su coste total y la devolvemos.
      * @return [Json]
      */
-    function lineasFactura($idreparacion){
+    function lineasFactura($idreparacion) {
        
         //Datos Factura
         $factura=Facturas::select('numerofactura','estado')->where('idreparacion',$idreparacion)->first();
@@ -139,7 +143,7 @@ class FacturasController extends Controller
         $nombreUsuario=$usuario['nombre'];
 
         //Datos Servicios reparacion [Lineas factura]
-        $lineasFactura = Serviciosreparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
+        $lineasFactura = ServiciosReparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
         
         //Calculo de precio total
         $precioBruto=0;
@@ -161,7 +165,7 @@ class FacturasController extends Controller
         return response()->json(['Message' =>   'Lineas de factura numero '.$numeroFactura.' de reparacion '.$idreparacion, 'Encabezado Factura' => $datosFactura, 'Lineas Factura' => $lineasFactura], 200);
     }
 
-    /** ****PENDIENTE******
+    /*
      * @param mixed $idreparacionParaAnular
      * @param mixed $idreparacionNueva
      * Busca la factura a anular, cambia su estado de 'vigente' a 'anulada'

@@ -115,10 +115,10 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->group(['prefix' => 'facturas'], function () use ($router) {
         $router->post('/{idreparacion}', ['uses'=> 'FacturasController@nuevaFactura']);
         $router->get('/', ['uses'=> 'FacturasController@list']);
-        $router->get('/lineasfactura/{idreparacion}', ['uses'=> 'FacturasController@lineasFactura']);//PENDIENTE
+        $router->get('/lineasfactura/{idreparacion}', ['uses'=> 'FacturasController@lineasFactura']);
         $router->get('/empresa/{idusuario}', ['uses'=> 'FacturasController@listFacturasEmpresa']);
-        $router->get('vigentes/empresa/{idempresa}', ['uses'=> 'FacturasController@listFacturasEmpresaVigentes']);//PENDIENTE
-        $router->put('/anulardereparacion/{idreparacionParaAnular}/por/{idreparacionNueva}', ['uses'=> 'FacturasController@anularFactura']);//PENDIENTE
+        $router->get('/vigentes/empresa/{idusuario}', ['uses'=> 'FacturasController@listFacturasEmpresaVigentes']);
+        $router->put('/anularlareparacion/{idreparacionParaAnular}/por/{idreparacionNueva}', ['uses'=> 'FacturasController@anularFactura']);
          
     });
 
