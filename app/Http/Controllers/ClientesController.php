@@ -25,8 +25,7 @@ class ClientesController extends Controller
      * por el parametro request
      * @return [json]
      */
-    function add(Request $request)
-    {
+    function add(Request $request) {
         $email = $request->email;
         $tlf = $request->tlf;
         if (!Utils::validarTlf($tlf)) //Comprobacion de email  
@@ -53,8 +52,7 @@ class ClientesController extends Controller
      * Lista todos los clientes
      * @return [json]
      */
-    function list()
-    {
+    function list() {
         return response()->json(Clientes::all());
     }
 
@@ -63,8 +61,7 @@ class ClientesController extends Controller
      * Dado un id de empresa devuelve todos los clientes que pertenecen a esa empresa
      * @return [json]
      */
-    function clientesEmpresa($idEmpresa)
-    {
+    function clientesEmpresa($idEmpresa) {
         $empresa = Empresas::find($idEmpresa);
         if (is_null($empresa))
             return response()->json(["Error:" => "No se encontro ninguna empresa con ese id.", "Id empresa: " => $idEmpresa], 202);
@@ -79,8 +76,7 @@ class ClientesController extends Controller
      * o un apellido y pertenezca a un Id de empresa concreto
      * @return [json]
      */
-    function buscarCliente($idEmpresa, $nombre, $apellido = null)
-    {
+    function buscarCliente($idEmpresa, $nombre, $apellido = null) {
         //dd('idEmpresa',$idEmpresa, ' nombre',$nombre,' apellidos',$apellidos);
         if (is_null($apellido)) {
             $result = Clientes::where('empresa', $idEmpresa)->where('nombre', 'like', urlencode($nombre) . '%')->get();
@@ -91,7 +87,7 @@ class ClientesController extends Controller
             return response()->json(['msg', 'Cliente encontrado' => $result], 201);
         } else {
             //app('db')->enableQueryLog();//Activar registro de querys   
-            $result = Clientes::where('empresa', $idEmpresa)->where('nombre', urlencode($nombre))->where('apellido', 'like', urlencode($apellido) . '%')->get();
+            $result = Clientes::where('empresa', $idEmpresa)->where('nombre', 'like', urlencode($nombre) . '%')->where('apellido', 'like', urlencode($apellido) . '%')->get();
             //dd(app('db')->getQueryLog());
             if (sizeof($result) <= 0) //Si NO encontro resultados
                 return response()->json(['msg', 'No se encontron clientes con el nombre y apellidos indicados ', 'nombre' => urlencode($nombre), 'apellidos' => urlencode($apellido)], 202);
@@ -121,8 +117,7 @@ class ClientesController extends Controller
      * Actualiza los campos de el parametro $request que llegan diferentes de null
      * @return [json]
      */
-    function update(Request $request, $id)
-    {
+    function update(Request $request, $id) {
         $cliente = Clientes::findOrFail($id);
         $nombre = $request->nombre;
         $empresa = $request->empresa;

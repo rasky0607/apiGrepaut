@@ -22,7 +22,7 @@ class Reparaciones extends Model implements AuthenticatableContract, Authorizabl
      * @var array
      */
     protected $fillable = [
-        'id','estadoReparacion', 'idusuario','idempresa','idcoche',
+        'id','estadoReparacion', 'idusuario','idcoche',
     ];
 
     /**

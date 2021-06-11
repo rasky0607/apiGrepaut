@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+//añadido
+use Illuminate\Support\Facades\DB as FacadesDB;
 
 class CreateTableUsuarios extends Migration
 {
@@ -22,10 +24,16 @@ class CreateTableUsuarios extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('nombre');
+            $table->bigInteger('idempresa', false, true)->unsigned();
             $table->string('token');
             $table->binary('logousuario')->nullable();
+            //$table->foreign('idempresa')->references('id')->on('empresas')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
+        
+        
+        
+
     }
 
     /**

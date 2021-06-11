@@ -8,7 +8,7 @@ use App\UsuariosEmpresas;
 use App\Usuarios;
 use Illuminate\Support\Str;
 
-/**
+/** CLASE EN DESHUSO
  * [Description UsuariosEmpresasController]
  * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
  */

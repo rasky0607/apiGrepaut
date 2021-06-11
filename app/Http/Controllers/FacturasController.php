@@ -38,17 +38,21 @@ class FacturasController extends Controller
      * y n o hara referencia aninguna otra factura, ya que es totalmente nueva
      * @return [json]
      */
-    function nuevaFactura($idreparacion)
-    {
+    function nuevaFactura($idreparacion) {
         //Comrpobar si la reparacion NO esta facturada aun
         if ($this->comprobacionReparacionNoFacturada($idreparacion)) {
-            //Obtener la empresa dela reparacion
-            $empresa = Reparaciones::select('idempresa')->where('id', $idreparacion)->first();
-            $idempresa = $empresa['idempresa'];
+            //Obtener la empresa de la reparacion
+            //select idempresa from usuarios where id in (select idusuario from reparaciones where id = 7);
+            $empresa = Usuarios::select('idempresa')->whereIn('id', Reparaciones::select('idusuario')->where('id',$idreparacion))->get();
+            $idempresa = $empresa[0]['idempresa'];
             //Obtener el siguiente numero de factura para la proxima reparacion de esa empresa
-            $numerofactura = $this->proximoNumeroFactura($idempresa);
+            $idusuario = Reparaciones::select('idusuario')->where('id',$idreparacion)->get();
+        
+            $numerofactura = $this->proximoNumeroFactura($idusuario[0]['idusuario']);
+
             //Fecha actual Formato->'Y-m-d'
             $fecha = date("Y-m-d");
+ 
             //Al crear una nueva factura, por defecto esta tiene stado vigente
             $estado = 'vigente';
             //Al crear una nueva factura no hace referencia a otra anulada, pro defecto estos valroes seran null
@@ -58,7 +62,7 @@ class FacturasController extends Controller
             $factura = Facturas::create([
                 'numerofactura' => $numerofactura,
                 'idreparacion' => $idreparacion,
-                'idempresa' => $idempresa,
+                'idusuario' => $idusuario[0]['idusuario'],
                 'fecha' => $fecha,
                 'estado' => $estado,
                 'numerofacturanulada' => $numerofacturanulada,
@@ -77,8 +81,7 @@ class FacturasController extends Controller
      * Lista todas las facturas de todas las empresas
      * @return [json]
      */
-    function list()
-    {
+    function list() {
         return response()->json(Facturas::all());
     }
 
@@ -87,27 +90,29 @@ class FacturasController extends Controller
      * Lista facturas de una empresa determinada
      * @return [Json]
      */
-    function listFacturasEmpresa($idempresa){
-        $factura =Facturas::where('idempresa',$idempresa)->get();
-        if(sizeof($factura)<=0)
-            return response()->json(['Error' => 'No hay facturas resgistradas aun en la empresa con id '.$idempresa], 202);
-        return response()->json(['Message' => 'Facturas de la empresa', 'Facturas' => $factura], 200);
+    function listFacturasEmpresa($idusuario) {
+        $idEmpresa = Usuarios::select('idempresa')->where('id', $idusuario)->get();
+        //select * from facturas where idusuario in (select id from usuarios where idempresa = 1);
+        $facturasEmpresa=Facturas::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->get();
+        if(sizeof($facturasEmpresa)<=0)
+            return response()->json(['Error' => 'No hay facturas resgistradas aun en la empresa con id '.$idEmpresa[0]['idempresa']], 202);
+        return response()->json($facturasEmpresa, 200);
     }
 
-    /**
+    /** ****PENDIENTE******
      * @param mixed $idempresa
      * Lista facturas de unae mpresa determinada con estado Vigente
      * @return [Json]
      */
-    function listFacturasEmpresaVigentes($idempresa){
+    function listFacturasEmpresaVigentes($idempresa) {
         $factura =Facturas::where('idempresa',$idempresa)->where('estado',FacturasController::facturaVigente)->get();
         if(sizeof($factura)<=0)
             return response()->json(['Error' => 'No hay facturas resgistradas con estado [Vigente] aun en la empresa con id '.$idempresa], 202);
         return response()->json(['Message' => 'Facturas de la empresa', 'Facturas' => $factura], 200);
     }
 
-    //[PENDIENTE]
-    /**
+    
+    /** ****PENDIENTE******
      * @param mixed $idreparacion
      * Dado un id de reparacion mostramos los servicios realizados en esta
      * y calculamos su coste total y la devolvemos.
@@ -156,7 +161,7 @@ class FacturasController extends Controller
         return response()->json(['Message' =>   'Lineas de factura numero '.$numeroFactura.' de reparacion '.$idreparacion, 'Encabezado Factura' => $datosFactura, 'Lineas Factura' => $lineasFactura], 200);
     }
 
-    /**
+    /** ****PENDIENTE******
      * @param mixed $idreparacionParaAnular
      * @param mixed $idreparacionNueva
      * Busca la factura a anular, cambia su estado de 'vigente' a 'anulada'
@@ -201,14 +206,17 @@ class FacturasController extends Controller
      * Obtenemos el proximo numero de factura para una empresa
      * @return [bigInteger]
      */
-    function proximoNumeroFactura($idempresa)
+    function proximoNumeroFactura($idusuario)
     {
         $numerofacturaActual = 0;
         $siguienteNumerofactura = 0;
         //selecionamos las facturas de una empresa y cogemos el maximo numero factura de estas
-        $numerofacturaActual = Facturas::select('numerofactura')->where('idempresa', $idempresa)->max('numerofactura');
+        $idEmpresa = Usuarios::select('idempresa')->where('id', $idusuario)->get();
+        $numerofacturaActual = Facturas::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->max('numerofactura');
         $siguienteNumerofactura = $numerofacturaActual;
-        if ($numerofacturaActual == 0 || is_null($numerofacturaActual)) //Si es = 0 o null es que no hay ninguna factura dada de alta en esa empresa y sera la primera, es decir la nº1
+        
+        //Si es = 0 o null es que no hay ninguna factura dada de alta en esa empresa y sera la primera, es decir la nº1
+        if ($numerofacturaActual == 0 || is_null($numerofacturaActual))
         {
             $siguienteNumerofactura = 1;
             return $siguienteNumerofactura;

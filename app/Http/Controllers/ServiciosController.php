@@ -23,8 +23,7 @@ class ServiciosController extends Controller
      * y devuelve un json con el servicio creado
      * @return [Json]
      */
-    function add(Request $request)
-    {     
+    function add(Request $request) {     
         $servicio = Servicios::create([
             'nombre' => $request->nombre,
             'empresa' => $request->empresa,
@@ -38,8 +37,7 @@ class ServiciosController extends Controller
      * Lista todos los servicios
      * @return [json]
      */
-    function list()
-    {
+    function list() {
         return response()->json(Servicios::all());
     }
 
@@ -48,9 +46,8 @@ class ServiciosController extends Controller
      * Busca servicios que pertenecen a una empresa
      * @return [json]
      */
-    function buscarServiciosDeEmpresa($idEmpresa)
-    {
-        $empresa=Empresas::find($idEmpresa);
+    function buscarServiciosDeEmpresa($idEmpresa) {
+        $empresa = Empresas::find($idEmpresa);
         if(is_null($empresa))//No encontro la empresa
             return response()->json(['Error' => 'No existe ese id de empresa.', 'Id de empresa' => $empresa], 202);
 
@@ -63,9 +60,8 @@ class ServiciosController extends Controller
      * Busca un servicios con nombre similares al indicado de una empresa
      * @return [json]
      */
-    function buscarUnServicio($idEmpresa,$nombre)
-    {
-        $servicio=Servicios::where('empresa',$idEmpresa)->where('nombre','like','%'.urldecode($nombre).'%')->get();
+    function buscarUnServicio($idEmpresa,$nombre) {
+        $servicio = Servicios::where('empresa',$idEmpresa)->where('nombre','like','%'.urldecode($nombre).'%')->get();
         if(sizeof($servicio)>0)
             return response()->json(['message'=>'Servicios similares encontrados:','Servicios'=>$servicio],200);
 
@@ -77,8 +73,7 @@ class ServiciosController extends Controller
      * Elimina un servicio indicando su id por parametro y lo devuelve
      * @return [json]
      */
-    function delete($id)
-    {
+    function delete($id) {
         $servicio = Servicios::findOrFail($id);
         //Si no encontro servicio
         if (is_null($servicio)) {
@@ -95,8 +90,7 @@ class ServiciosController extends Controller
      * Actualiza los campos de el parametro $request que llegan diferentes de null
      * @return [json]
      */
-    function update(Request $request, $id)
-    {
+    function update(Request $request, $id) {
         $servicio = Servicios::findOrFail($id);
         $nombre = $request->nombre;
         $empresa = $request->empresa;

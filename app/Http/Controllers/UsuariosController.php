@@ -33,6 +33,7 @@ class UsuariosController extends Controller
             'email' => $request->email,
             'password' => $request->password,
             'nombre' => $request->nombre,
+            'idempresa' => $request->idempresa,
             'token' => Str::random(10)
         ]);
         return response()->json(['message' => 'User registrado con exito', 'usuario' => $user], 200);
@@ -43,19 +44,18 @@ class UsuariosController extends Controller
      * Iniciar sesion devolvera el token necesario al usuario para realizar el resto de consultas a la API
      * @return [Json]
      */
-    function login(Request $request)
-    {
+    function login(Request $request) {
         $email = $request->email;
         $password =$request->password;
-        $user= Usuarios::select('id')->where('email', $email)->where('password', $password)->get();
+        //$user= Usuarios::select('id')->where('email', $email)->where('password', $password)->get();
+        $user= Usuarios::where('email', $email)->where('password', $password)->get();
         if (sizeof($user)== 1) //Logeo correcto
         {   //Obtenemos el id del usuario
-	    $id = $user[0]['id'];
-            //Generamos un nuevo token y lo devolvemos al usuario
-            $token = Str::random(10);
+            $id = $user[0]['id'];
+            $idempresa = $user[0]['idempresa'];
             //Actualizamos/guardamnos el nuevo token en la BD
-            $user= $this->actualizarToken($user[0]['id'],$token);
-            return response()->json(['message' => 'Credenciales correctas','id'=>$id,'token'=>$token],200);
+            $token= $this->actualizarToken($id);
+            return response()->json(['message' => 'Credenciales correctas','idempresa'=>$idempresa,'id'=>$id,'token'=>$token],200);
         } else {
             //Email o contraseña incorrectas
             return response()->json(['message' => 'Email o Password incorrecto'],202);
@@ -68,27 +68,39 @@ class UsuariosController extends Controller
      * Actualiza el token del usuario
      * @return [Json]
      */
-    function actualizarToken($id,$token){
+    function actualizarToken($id) {
+        //Generamos un nuevo token y lo devolvemos al usuario
+        $token = Str::random(10);
         $user = Usuarios::findOrFail($id);
         $user->update([
             'token' => $token
         ]);
+        return $token;
+    }
+    
+    function logout($id) {
+        $token = $this->actualizarToken($id);
+        return response()->json(['message' => 'deslogueado','id de usuario deslogueado'=>$id,'token'=>$token],200);
     }
 
     /**
      * Lista todos los usuarios
      * @return [Json]
      */
-    function list()
-    {
+    function list() {
         return response()->json(Usuarios::all());
     }
 
-    //Busca un usuario concreto o con correos que empiecen igual al indicado
-    function buscarUsuario($email)
-    {
+    //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada
+    function buscarUsuario(Request $request) {
+        $email = $request->email;
+        $idempresa = $request->idempresa;
+        //echo $email;
+        //return;
         //app('db')->enableQueryLog(); //Activar registro de querys
-        $usuario = Usuarios::where('email', 'like', '%'.urldecode($email) . '%')->get();
+        $usuario = Usuarios::where('email', 'like', '%'.urldecode($email) . '%')->where('idempresa',$idempresa)->get();
+        //$query = dd(app('db')->getQueryLog());
+        
         if (sizeof($usuario) <= 0) {
             return response()->json(['message' => 'No existe el usuario', 'Usuario con email:' => urldecode($email)], 202);
         } else {
@@ -101,8 +113,7 @@ class UsuariosController extends Controller
      * Elimina un usuario indicando su id por parametro y lo devuelve
      * @return [Json]
      */
-    function delete($id)
-    {
+    function delete($id) {
         $user = Usuarios::findOrFail($id);
         //Si no encontro usuarios
         if (is_null($user)) {
@@ -125,6 +136,7 @@ class UsuariosController extends Controller
         $email = $request->email;
         $nombre = $request->nombre;
         $password = $request->password;
+        $idempresa = $request->idempresa;
         $respuesta=array(); //Campos que fueron modificados
         if (!is_null($email)) {
             if (!Utils::validarcorreo($email))
@@ -147,6 +159,13 @@ class UsuariosController extends Controller
                 'password' => $password
             ]);
             array_push($respuesta, 'password');
+        }
+        
+        if (!is_null($idempresa)) {
+            $user->update([
+                'idempresa' => $idempresa
+            ]);
+            array_push($respuesta, 'idempresa');
         }
 
 

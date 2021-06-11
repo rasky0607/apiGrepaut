@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use App\Empresas;
 use App\Usuarios;
-/**
+/** *******EN DESUSO*******
  * [Description Usuariosempresas]
  * Clase modelo de la tabla Usuariosempresas.
  * Esta clase/tabla al ser generada por uan relacion de N:M entre Usuarios y Empresas

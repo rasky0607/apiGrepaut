@@ -19,7 +19,7 @@ class Facturas extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'numerofactura','idreparacion','idempresa','fecha','estado','numerofacturanulada',
+        'numerofactura','idreparacion','idusuario','fecha','estado','numerofacturanulada',
     ];
 
     /**

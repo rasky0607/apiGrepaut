@@ -22,7 +22,7 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id', 'email', 'password', 'nombre', 'token'
+        'id', 'email', 'password', 'nombre','idempresa', 'token'
     ];
 
     /**
@@ -40,10 +40,10 @@ class Usuarios extends Model implements AuthenticatableContract, AuthorizableCon
      * y un usuario puede estar en varias empresas a la vez
      * @return [Usuarios usuarios]
      */
-    public function empresas()
+    /*public function empresas()
     {
         return $this->belongsToMany(Empresas::class, 'usuariosempresas', 'usuario', 'empresa')->withTimestamps()->withPivot('tipoUsuario', 'permisoEscritura');
-    }
+    }*/
 
    
 }

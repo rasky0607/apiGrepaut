@@ -15,16 +15,14 @@ use App\Utils;
  * [Description CochesController]
  * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
  */
-class CochesController extends Controller
-{
+class CochesController extends Controller {
     /**
      * @param Request $request
      * Registra un nuevo coche insertando todos los campos optenidos
      * por el parametro request
      * @return [json]
      */
-    function add(Request $request)
-    {
+    function add(Request $request) {
         $coche = Coches::create([
             'matricula' => $request->matricula,
             'idcliente' => $request->idcliente,
@@ -38,8 +36,7 @@ class CochesController extends Controller
      * Lista todos los coches
      * @return [json]
      */
-    function list()
-    {
+    function list() {
         return response()->json(Coches::all());
     }
 
@@ -48,8 +45,7 @@ class CochesController extends Controller
      * Pasados un id de cliente, devolvemos todos los coches relacionados con dicho cliente
      * @return [json]
      */
-    function cochesDeUnCliente($idCliente)
-    {
+    function cochesDeUnCliente($idCliente) {
         $cliente = Clientes::findOrFail($idCliente);
         if(is_null($cliente))//No encontro el cliente 
             return response()->json(['Error' => 'No existe ese id de cliente.', 'Id de cliente' => $cliente], 202);
@@ -61,8 +57,7 @@ class CochesController extends Controller
      * Muestra los dato de un coche determinado
      * @return [Json]
      */
-    function unCoche($id)
-    {
+    function unCoche($id) {
         return response()->json(Coches::select()->where('id', $id)->get());
     }
 
@@ -71,8 +66,7 @@ class CochesController extends Controller
      * Coches que pertenecen a clientes de una empresa determinada pasando por la url el id de la empresa
      * @return [json]
      */
-    function cochesDeClientesDeUnaEmpresa($idEmpresa)
-    {
+    function cochesDeClientesDeUnaEmpresa($idEmpresa) {
         //Ejemplo sql= select * from coches where idCliente in(select id from clientes where empresa=1); 
         $coches=Coches::select()->whereIn('idcliente', Clientes::select('id')->where('empresa', $idEmpresa)->get())->get();
         if(sizeof($coches)<=0)//No encontro el cliente 
@@ -89,8 +83,7 @@ class CochesController extends Controller
      * Elimina un coche pasando  el id de cliente y una matricula por parametro
      * @return [json]
      */
-    function delete($id)
-    {
+    function delete($id) {
         $coche = Coches::find($id);
         if (is_null($coche)) {
             return response()->json(['Error' => 'No existe el Coche con el id indicado', 'id coche' => $id], 202);
@@ -108,8 +101,7 @@ class CochesController extends Controller
      * pasando un id de cliente y una matricula por parametro
      * @return [json]
      */
-    function update(Request $request, $id)
-    {
+    function update(Request $request, $id) {
         $coche = Coches::findOrFail($id);
         $matriculaNueva = $request->matricula;
         $idclienteNuevo = $request->idcliente;

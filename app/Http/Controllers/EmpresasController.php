@@ -12,23 +12,28 @@ use App\Utils;
  * [Description EmpresasController]
  * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
  */
-class EmpresasController extends Controller
-{
+class EmpresasController extends Controller {
     /**
      * @param Request $request
      * Registra una nueva empresa insertando todos los campos optenidos
      * por el parametro request
      * @return [json]
      */
-    function add(Request $request)
-    {
+    function add(Request $request) {
         $tlf = $request->tlf;
-        if (!Utils::validarTlf($tlf)) //Comprobacion de numero de Tlf
-            return response()->json(['Error' => 'El telefono de la empresa NO es correcto', 'Telefono' => $tlf], 202);
+
+        if($tlf != ""){
+            if (!Utils::validarTlf($tlf)) //Comprobacion de numero de Tlf
+                return response()->json(['Error' => 'El telefono de la empresa NO es correcto', 'Telefono' => $tlf], 202);
+        } else{
+            $tlf = "<vacio>";
+        }
+        //echo "el tlf".$tlf;//POR AQUIII
+        //return;
         $empresa = Empresas::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
-            'tlf' => $request->tlf
+            'tlf' => $tlf
         ]);
         return response()->json(['message' => 'Empresa registrada con exito', 'Empresa' => $empresa], 200);
     }
@@ -37,8 +42,7 @@ class EmpresasController extends Controller
      * Lista todas las empresas
      * @return [json]
      */   
-    function list()
-    {
+    function list() {
         return response()->json(Empresas::all());
     }
  
@@ -47,8 +51,8 @@ class EmpresasController extends Controller
      * Busca una empresa concreta que empieze igual, pasando un nombre por parametro
      * @return [json]
      */
-    function buscarEmpresa($nombre)
-    {
+    function buscarEmpresa(Request $request) {
+        $nombre = $request->nombre;
         $empresa = Empresas::where('nombre', 'like',  '%'.urldecode($nombre) . '%')->get();
         if (sizeof($empresa) <= 0)
             return response()->json(['Error' => 'No se encontro la empresa: ', 'Empresa' => urldecode($nombre)], 202);
@@ -61,8 +65,7 @@ class EmpresasController extends Controller
      * Elimina un empresa pasando su id por parametro y la devuelve
      * @return [json]
      */
-    function delete($id)
-    {
+    function delete($id) {
         $empresa = Empresas::findOrFail($id);
         if (is_null($empresa)) {
             return response()->json(['message' => 'No existe esta empresa'], 202);
@@ -78,8 +81,7 @@ class EmpresasController extends Controller
      * Actualiza los campos de el parametro $request que llegan diferentes de null
      * @return [json]
      */
-    function update($id, Request $request)
-    {
+    function update($id, Request $request) {
         $empresa = Empresas::findOrFail($id);
         $nombre = $request->nombre;
         $direccion = $request->direccion;

@@ -19,7 +19,7 @@ use App\Reparaciones;
 
 /**
  * [Description ServiciosReparacionesController]
- * Clase que realiza peticiones a la BD paramodificar o obtener datos y enviarlos donde se necesitan en formato Json
+ * Clase que realiza peticiones a la BD para modificar o obtener datos y enviarlos donde se necesitan en formato Json
  * La cual tambien actuara como tabla Linea de facturas ya que tendra todos los datos que comprenden  una factura
  */
 class ServiciosReparacionesController extends Controller
@@ -33,8 +33,7 @@ class ServiciosReparacionesController extends Controller
      * por el parametro request
      * @return [json]
      */
-    function add(Request $request)
-    {
+    function add(Request $request) {
         //comprobacion de que el servicio asignado a la reparacion, pertenece a la misma empresa.
         if (!$this->comprobacionEmpresaServicioEmpresaReparacion($request->idreparacion, $request->servicio))
             return response()->json(['Error' => 'El id del servicio asignado no pertenece a la misma empresa que el id de la reparacion indicada, o no existen.', 'id servicio' => $request->servicio, 'id reparacion' => $request->idreparacion,], 202);
@@ -59,8 +58,7 @@ class ServiciosReparacionesController extends Controller
      * Lista todos los registros de la tabla serviciosReparaciones
      * @return [json]
      */
-    function list()
-    {
+    function list() {
         
         return response()->json(ServiciosReparaciones::all());
     }
@@ -69,8 +67,7 @@ class ServiciosReparacionesController extends Controller
      * Lista todos los ids de servicios asignados a un id de reparacion y el numero de trabajo de cada uno
      * @return [json]
      */
-    function listServiciosDeUnaReparacion($idreparacion)
-    {
+    function listServiciosDeUnaReparacion($idreparacion) {
         $serviciosReparacion = ServiciosReparaciones::select('numerotrabajo', 'servicio')->where('idreparacion', $idreparacion)->get();
         return response()->json(['Message' => 'Servicios asignados a la reparacion con id = ' . $idreparacion, 'serviciosReparacion' => $serviciosReparacion], 200);
     }
@@ -81,8 +78,7 @@ class ServiciosReparacionesController extends Controller
      * Mostando la matricula del vehiculo en lugar del id y nombre del servicio ofrecido
      * @return [Json]
      */
-    function vistaListServiciosDeUnaReparacion($idreparacion)
-    {
+    function vistaListServiciosDeUnaReparacion($idreparacion) {
         $reparacion = Reparaciones::select('idcoche', 'estadoReparacion')->where('id', $idreparacion)->first();
         $estado = $reparacion['estadoReparacion'];
         $matriculaCoche = Coches::select('matricula')->where('id', $reparacion['idcoche'])->first();
@@ -102,20 +98,26 @@ class ServiciosReparacionesController extends Controller
 
     /**
      * @param mixed $id
-     * Elimina un servicio asignado a una reparacion indicando el id de la reparacio y el numero de trabajo pro parametro
+     * Elimina un servicio asignado a una reparacion indicando el id de la reparacio y el numero de trabajo pro parametro.
+     * los servicios que esten asociados a un id de reparacion con estado FACTURADO, NO podran ser eliminados
      * @return [json]
      */
-    function delete($idreparacion, $numerotrabajo)
-    {
+    function delete($idreparacion, $numerotrabajo) {
         $servicioReparacion = Serviciosreparaciones::where('idreparacion', $idreparacion)->where('numerotrabajo', $numerotrabajo);
         if (sizeof($servicioReparacion->get()) <= 0)
             return response()->json(['Error' => 'No se encontro asociacion entre este id de reparacion y el numero de trabajo indicados ', 'idreparacion' => $idreparacion, 'numerotrabajo' => $numerotrabajo], 202);
+        
+        //Si esta con estado NO FACTURADO se elimina, si no, no se podra eliminar
+        if($this->comprobacionEstadoDeReparacion($idreparacion)){
+            //Si encontro un resultado
+            $objetoEliminado = clone $servicioReparacion->get(); //Necesitamos clonarlo, puesto que una vez se elimina no podemos volver a mostrarlo a diferencia de las busquedas por find id
+            $servicioReparacion->delete();
 
-        //Si encontro un resultado 
-        $objetoEliminado = clone $servicioReparacion->get(); //Necesitamos clonarlo, puesto que una vez se elimina no podemos volver a mostrarlo a diferencia de las busquedas por find id
-        $servicioReparacion->delete();
-
-        return response()->json(['message' => 'Se elimino el trabajo ' . $numerotrabajo . ' de la reparacion con id ' . $idreparacion . ' con exito', 'servicioReparacion' => $objetoEliminado], 201);
+            return response()->json(['message' => 'Se elimino el trabajo ' . $numerotrabajo . ' de la reparacion con id ' . $idreparacion . ' con exito', 'servicioReparacion' => $objetoEliminado], 201);
+        }
+        else {
+            return response()->json(['Error' => 'No se puede eliminar los servicios de una reparacion con estado FACTURADO ', 'idreparacion' => $idreparacion, 'numerotrabajo' => $numerotrabajo], 202);
+        }
     }
 
     /**
@@ -126,10 +128,10 @@ class ServiciosReparacionesController extends Controller
      * Nota: Si no le pasamos un "precio" por el valor request,
      * este le asignara el precio automaticamente de la tabla Servicios asociados al id del servicio pasado por el request.
      * En caso contrario se le asignara el precio indicado.
+     * NO se puede actulizar o modificar servicios de reparaciones ya facturadas
      * @return [json]
      */
-    function update(Request $request, $idreparacion, $numerotrabajo)
-    {
+    function update(Request $request, $idreparacion, $numerotrabajo) {
         $reparacion = Reparaciones::select('estadoReparacion')->where('id', $idreparacion)->first();
       
         if($this->comprobacionEstadoDeReparacion($idreparacion)) {
@@ -179,22 +181,22 @@ class ServiciosReparacionesController extends Controller
      * @param mixed $idServicio
      * Comprueba que un id servicio pertenezca
      * a la misma empresa que al id de la reparacion a la que se asigna
-     * preguntando si el usuario que esta asignado a la reparacion pertenece a la misma empresa (en la tabla usuariosEmpresas)
+     * preguntando si el usuario que esta asignado a la reparacion pertenece a la misma empresa (en la tabla Usuarios)
      * que el servicio (En la tabla servicios) asignado a esta reparacion.
      * @return [Booblean bool]
      */
-    function comprobacionEmpresaServicioEmpresaReparacion($idreparacion, $idServicio)
-    {
+    function comprobacionEmpresaServicioEmpresaReparacion($idreparacion, $idServicio) {
         $servicio = Servicios::where('id', $idServicio)->first();
         if (is_null($servicio)) //el id del servicio no existe
             return false;
         //Seleciona el usuario de la tabla usuariosEmpresas que coincida con el id de usuario de cuya reparacion tenga como id la indicada "idreparacion"
-        $usuarioEmpresa = Usuariosempresas::whereIn('usuario', Reparaciones::select('idusuario')->where('id', $idreparacion)->get())->first();
-        if (is_null($usuarioEmpresa)) //el id del servicio no existe
+        $idusuario = Usuarios::whereIn('id', Reparaciones::select('idusuario')->where('id', $idreparacion)->get())->first();
+        
+        if (is_null($idusuario)) //el id del servicio no existe
             return false;
         $idEmpresaServicio = $servicio['empresa'];
-        $idEmpresaUsuario = $usuarioEmpresa['empresa'];
-        //Si coinciden los id de empresa, es que el servicio asignado a la reparacion  pertenecen a la misma empresa
+        $idEmpresaUsuario = $idusuario['idempresa'];
+        //Si coinciden los id de empresa, es que el servicio asignado a la reparacion pertenecen a la misma empresa
         if ($idEmpresaServicio == $idEmpresaUsuario)
             return true;
         else
@@ -207,8 +209,7 @@ class ServiciosReparacionesController extends Controller
      * En caso de ser 0 o no encontrar registros, devuelve 1.
      * @return [Integer numeroReparacionFinal]
      */
-    function obtenerNumeroTrabajoDeReparacion($idreparacion)
-    {
+    function obtenerNumeroTrabajoDeReparacion($idreparacion) {
         $numerotrabajoObtenido = 0;
         $servicioReparacion = Serviciosreparaciones::where('idreparacion', $idreparacion)->max('numerotrabajo');
         if ($servicioReparacion != null) //Si no existen registros previos en la tabla serviciosReparaciones con  ese id de reparacion, por lo lo que no hay un  "numerotrabajo" maximo        
@@ -230,8 +231,7 @@ class ServiciosReparacionesController extends Controller
      * para trasladarlo automaticamente a la tabla serviciosReparaciones
      * @return [Double]
      */
-    function obtenerPrecioDelservicio($idServicio)
-    {
+    function obtenerPrecioDelservicio($idServicio) {
         $precioServicio = Servicios::select('precio')->where('id', $idServicio)->first(); //Optenemos el precio del servicio   
         return $precioServicio['precio'];
     }
@@ -243,7 +243,7 @@ class ServiciosReparacionesController extends Controller
      * en caso contrario si podra, es decir estado 'no facturado' y devolvera true.
      * @return [Boolean]
      */
-    function comprobacionEstadoDeReparacion($idreparacion){
+    function comprobacionEstadoDeReparacion($idreparacion) {
         $reparacion = Reparaciones::select('estadoReparacion')->where('id', $idreparacion)->first();
         //dd($reparacion['estadoReparacion']);
         if($reparacion['estadoReparacion']==ServiciosReparacionesController::reparacionNoFacturado)
