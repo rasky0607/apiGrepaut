@@ -118,7 +118,10 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/lineasfactura/{idreparacion}', ['uses'=> 'FacturasController@lineasFactura']);
         $router->get('/empresa/{idusuario}', ['uses'=> 'FacturasController@listFacturasEmpresa']);
         $router->get('/vigentes/empresa/{idusuario}', ['uses'=> 'FacturasController@listFacturasEmpresaVigentes']);
-        $router->put('/anularlareparacion/{idreparacionParaAnular}/por/{idreparacionNueva}', ['uses'=> 'FacturasController@anularFactura']);
+        $router->put('/anularlareparacion/{idreparacionParaAnular}', ['uses'=> 'FacturasController@anularFactura']);
+        
+       // $router->get('/test/{idreparacionParaAnular}', ['uses'=> 'FacturasController@crearNuevaReparacionParaFacturaAnulada']);
+                   
          
     });
 

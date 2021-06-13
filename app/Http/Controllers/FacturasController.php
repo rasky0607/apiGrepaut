@@ -16,6 +16,7 @@ use App\Servicios;
 use App\Usuariosempresas;
 use App\Reparaciones;
 use App\Facturas;
+use App\Http\Controllers\ServiciosReparacionesController;
 
 /**
  * [Description ServiciosReparacionesController]
@@ -170,38 +171,83 @@ class FacturasController extends Controller
      * @param mixed $idreparacionNueva
      * Busca la factura a anular, cambia su estado de 'vigente' a 'anulada'
      * y cambia el numerofacturanulada de la nueva Factura sustituta de null a el numero de la vija factura que fue anulada
-     * y devolvemos la nueva factura final
+     * y devolvemos la nueva factura final, la factura sustituta sera igual que la anulada pero con precios negativos
      * @return [Json]
      */
-    function anularFactura($idreparacionParaAnular, $idreparacionNueva)
+    function anularFactura($idreparacionParaAnular)
     {
-        //Comprobar que el idreparacionNueva no esta facturada
-        if ($this->comprobacionReparacionNoFacturada($idreparacionNueva)) {
-            //0-Buscamos el numero de factura de la factura a anular
-            $numerofacturaParaAnular = 0;
-            $numerofacturaParaAnular = Facturas::select('numerofactura')->where('idreparacion', $idreparacionParaAnular)->first();
-            //1-Cambiar estado de factura a Anulada
-            $facturaParaAnular = Facturas::where('idreparacion', $idreparacionParaAnular);
+       $estadoFactura = Facturas::select('estado')->where('idreparacion', $idreparacionParaAnular)->first();
+        //comprobamos si la factura no fue ya anulada antes
+        if($estadoFactura['estado'] == 'vigente')
+            {
+                //0-Buscamos el numero de factura de la factura a anular
+                $numerofacturaParaAnular = 0;
+                $numerofacturaParaAnular = Facturas::select('numerofactura')->where('idreparacion', $idreparacionParaAnular)->first();
+                //1-Cambiar estado de factura a Anulada
+                $facturaParaAnular = Facturas::where('idreparacion', $idreparacionParaAnular);
 
-            $facturaParaAnular->update([
-                'estado' => FacturasController::facturaAnulada
+                $facturaParaAnular->update([
+                    'estado' => FacturasController::facturaAnulada
+                ]);
+
+                //2-Crear reparacion nueva y Añadir a esta reparacion los servicios reparacion que ya tenia pero con precio negativo [para crear un factura negativa]
+                $idreparacionNueva = $this->crearNuevaReparacionParaFacturaAnulada($idreparacionParaAnular);
+
+                //3-Creamos la nueva factura
+                $this->nuevaFactura($idreparacionNueva);
+                //4-Referencia a nueva factura de la nueva reparacion a factura anulada
+                $facturaSustituta = Facturas::where('idreparacion', $idreparacionNueva);
+                $facturaSustituta->update([
+                    'numerofacturanulada' => $numerofacturaParaAnular['numerofactura'],
+                    'idreparacionanulada' => $idreparacionParaAnular
+                ]);
+
+                return response()->json(['Message' => 'Factura anulada con exito ', 'Factura nueva ' => $facturaSustituta->get(), 'Factura anulada' => $facturaParaAnular->get()], 200);
+            }else{
+                return response()->json(['Error' => 'Esta factura ya esta anulada'], 202);
+            }
+    }
+    
+    //Creamos un nueva reparacion con unos servicios asociados , con precios negativos, para hacer una factura negativa
+    function crearNuevaReparacionParaFacturaAnulada($idreparacionParaAnular){
+
+        
+        //copiamos el idusuario y de coche para la nueva factura negativa
+        $reparacionQueSeAnular = Reparaciones::select('idusuario','idcoche')->where('id',$idreparacionParaAnular)->first();
+        $idusuario = $reparacionQueSeAnular['idusuario'];
+        $idcoche = $reparacionQueSeAnular['idcoche'];
+        
+
+        
+        //creamos la nueva reparacion
+        $reparacion = Reparaciones::create([
+            'estadoReparacion' => 'no facturado',
+            'idusuario' => $idusuario,
+            'idcoche' => $idcoche
+        ]);
+        
+        
+        //copiamos los servicios que tenia asociados esa reparacion
+        $serviciosDeReparacion = Serviciosreparaciones::select('servicio','precioServicio')->where('idreparacion', $idreparacionParaAnular)->get();;
+        //Asociamos los servicios  ala nueva reparacion, pero con precio negativo
+        $obj = new ServiciosReparacionesController();
+        foreach($serviciosDeReparacion as $item){
+            $servicio = $item['servicio'];
+            $precioServicio = $item['precioServicio'];
+            $precioServicioNegativo = $precioServicio * - 1;//Colocamos el valor en negativo
+            $numeroTrabajo = $obj->obtenerNumeroTrabajoDeReparacion($reparacion['id']);
+            $servicioReparacion = ServiciosReparaciones::create([
+                'idreparacion' => $reparacion['id'],
+                'numerotrabajo' => $numeroTrabajo,
+                'servicio' => $servicio,
+                'precioServicio' => $precioServicioNegativo
             ]);
-
-            //2-Crear reparacion nueva y Añadir a esta reparacion los servicios reparacion pertinentes [Cosa de la UI de la APP]
-            //3-Creamos la nueva factura
-            $this->nuevaFactura($idreparacionNueva);
-            //4-Referencia a nueva factura de la nueva reparacion a factura anulada
-            $facturaSustituta = Facturas::where('idreparacion', $idreparacionNueva);
-            $facturaSustituta->update([
-                'numerofacturanulada' => $numerofacturaParaAnular['numerofactura'],
-                'idreparacionanulada' => $idreparacionParaAnular
-            ]);
-
-            return response()->json(['Message' => 'Factura anulada con exito ', 'Factura nueva ' => $facturaSustituta->get(), 'Factura anulada' => $facturaParaAnular->get()], 200);
-        }else{
-            $factura=Facturas::where('idreparacion',$idreparacionNueva);
-            return response()->json(['Error' => 'Esta reparcion ya esta facturada, crea una nueva reparacion para poder anular la factura de la reparacion indicada con id '.$idreparacionParaAnular, 'Factura  ' => $factura->get()], 202);
         }
+        
+        return $reparacion['id'];
+        
+        
+        
     }
 
 
@@ -227,6 +273,7 @@ class FacturasController extends Controller
         }
         return ++$siguienteNumerofactura; //Si encontro alguna factura dada de alta en esa empresa,el numero de factura sera el maximo + 1
     }
+    
 
     /**
      * @param mixed $idreparacion

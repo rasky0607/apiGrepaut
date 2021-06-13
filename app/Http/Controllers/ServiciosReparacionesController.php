@@ -92,7 +92,7 @@ class ServiciosReparacionesController extends Controller
             "estado" => $estado
         );
 
-        return response()->json(['Message' => 'Servicios al vehiculo con matricula [' . $matricula . '] y estado [' . $estado . '] y reparacion con id = ' . $idreparacion, 'Datos Reparacion' => $datosReparacion, 'serviciosReparacion' => $serviciosreparacion], 200);
+        return response()->json(['Message' => 'Servicios al vehiculo con matricula [' . $matricula . '] y estado [' . $estado . '] y reparacion con id = ' . $idreparacion, 'DatosReparacion' => $datosReparacion, 'serviciosReparacion' => $serviciosreparacion], 200);
     }
 
 
@@ -209,7 +209,7 @@ class ServiciosReparacionesController extends Controller
      * En caso de ser 0 o no encontrar registros, devuelve 1.
      * @return [Integer numeroReparacionFinal]
      */
-    function obtenerNumeroTrabajoDeReparacion($idreparacion) {
+    public function obtenerNumeroTrabajoDeReparacion($idreparacion) {
         $numerotrabajoObtenido = 0;
         $servicioReparacion = Serviciosreparaciones::where('idreparacion', $idreparacion)->max('numerotrabajo');
         if ($servicioReparacion != null) //Si no existen registros previos en la tabla serviciosReparaciones con  ese id de reparacion, por lo lo que no hay un  "numerotrabajo" maximo        
