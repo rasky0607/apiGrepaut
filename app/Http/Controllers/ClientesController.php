@@ -55,6 +55,18 @@ class ClientesController extends Controller
     function list() {
         return response()->json(Clientes::all());
     }
+    
+    /**
+     * @param mixed $idEmpresa
+     * Dado un id de empresa devuelve todos los clientes que pertenecen a esa empresa
+     * @return [json]
+     */
+    function clientesDatos($idCliente) {
+        $cliente = Clientes::where('id',$idCliente)->get();
+        if (is_null($cliente))
+            return response()->json(["Error:" => "No se encontro ninguna cliente con ese id.", "Id cliente: " => $idCliente], 202);
+        return response()->json($cliente);
+    }
 
     /**
      * @param mixed $idEmpresa

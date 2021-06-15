@@ -67,6 +67,19 @@ class ServiciosController extends Controller
 
         return response()->json(['Error'=>'No se encontraron Servicios similares:'],202);
     }
+    
+    /**
+     * @param mixed $idservicio
+     * Busca un servicios con un ID
+     * @return [json]
+     */
+    function buscarUnServicioPorId($idservicio) {
+        $servicio = Servicios::where('id',$idservicio)->get();
+        if(sizeof($servicio)>0)
+            return response()->json($servicio,200);
+
+        return response()->json(['Error'=>'No se encontraron Servicios con ese ID:'],202);
+    }
 
     /**
      * @param mixed $id
