@@ -41,8 +41,13 @@ class ServiciosReparacionesController extends Controller
         //comprobar que si la reparacion esta o no facturada, en caso de devovler false, es decir [facturada], lanza msg error
         if(!$this->comprobacionEstadoDeReparacion($request->idreparacion))
             return response()->json(['Error' => 'Esta reparacion ya esta con estado [facturado] y no se le puede añadir mas serivicios. Nota: cree una reparacion nueva para añadir servicios', 'id reparacion' => $request->idreparacion,], 202);
+        if(empty($request->precioServicio) || $request->precioServicio ==""){
+            $precioServicio = $this->obtenerPrecioDelservicio($request->servicio); //Optenemos el precio del servicio i ndicado
+        }
+        else{
+            $precioServicio = $request->precioServicio; //Optenemos el precio del servicio i ndicado
+        }
         
-        $precioServicio = $this->obtenerPrecioDelservicio($request->servicio); //Optenemos el precio del servicio i ndicado                
         $numerotrabajo = $this->obtenerNumeroTrabajoDeReparacion($request->idreparacion);
         $servicioReparacion = ServiciosReparaciones::create([
             'idreparacion' => $request->idreparacion,
@@ -61,6 +66,15 @@ class ServiciosReparacionesController extends Controller
     function list() {
         
         return response()->json(ServiciosReparaciones::all());
+    }
+    
+    /**
+     * Lista todos los ids de servicios asignados a un id de reparacion y el numero de trabajo de cada uno
+     * @return [json]
+     */
+    function unTrabajoDeUnaReparacion($idreparacion, $numerotrabajo) {
+        $serviciosReparacion = ServiciosReparaciones::where('idreparacion', $idreparacion)->where('numerotrabajo', $numerotrabajo)->get();
+        return response()->json( $serviciosReparacion, 200);
     }
 
     /**
@@ -83,7 +97,7 @@ class ServiciosReparacionesController extends Controller
         $estado = $reparacion['estadoReparacion'];
         $matriculaCoche = Coches::select('matricula')->where('id', $reparacion['idcoche'])->first();
         $matricula = $matriculaCoche['matricula'];
-        $serviciosreparacion = ServiciosReparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->get();
+        $serviciosreparacion = ServiciosReparaciones::select('serviciosreparaciones.numerotrabajo', 'serviciosreparaciones.servicio', 'servicios.nombre', 'serviciosreparaciones.precioServicio')->join('servicios', 'servicios.id', '=', 'serviciosreparaciones.servicio')->where('serviciosreparaciones.idreparacion', $idreparacion)->orderBy('serviciosreparaciones.numerotrabajo', 'ASC')->get();
 
         //Datos de la reparacion con dichso servicios
         $datosReparacion = array(

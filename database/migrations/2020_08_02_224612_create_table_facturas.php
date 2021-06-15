@@ -22,7 +22,7 @@ class CreateTableFacturas extends Migration
             $table->bigInteger('idusuario', false, false)->unsigned();
             $table->date('fecha');
             $table->enum('estado',['vigente','anulada']);
-            $table->foreign('idreparacion')->references('id')->on('reparaciones')->onUpdate('cascade');//Referencia de la clave ajena de la tabla reparaciones
+            $table->foreign('idreparacion')->references('id')->on('reparaciones')->onUpdate('cascade')->onDelete('cascade');//Referencia de la clave ajena de la tabla reparaciones
             //$table->foreign('idempresa')->references('idempresa')->on('reparaciones')->onUpdate('cascade')->onDelete('cascade');//Referencia de la clave ajena de la tabla reparaciones
             $table->foreign('idusuario')->references('idusuario')->on('reparaciones')->onUpdate('cascade')->onDelete('cascade');//Referencia de la clave ajena de la tabla reparaciones
             //Tabla reflexiva

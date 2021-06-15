@@ -90,6 +90,21 @@ class UsuariosController extends Controller
     function list() {
         return response()->json(Usuarios::all());
     }
+    
+    //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada
+    function usuariosEmpresa($idempresa) {
+        //echo $email;
+        //return;
+        //app('db')->enableQueryLog(); //Activar registro de querys
+        $usuario = Usuarios::where('idempresa', $idempresa)->get();
+        //$query = dd(app('db')->getQueryLog());
+        
+        if (sizeof($usuario) <= 0) {
+            return response()->json(['Error' => 'No existe el usuario par esa empresa'], 202);
+        } else {
+            return response()->json($usuario, 200);
+        }
+    }
 
     //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada
     function buscarUsuario(Request $request) {

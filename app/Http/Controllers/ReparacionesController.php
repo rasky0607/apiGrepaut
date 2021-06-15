@@ -59,7 +59,7 @@ class ReparacionesController extends Controller {
     function listReparacionesEmpresa($idusuario) {
         $idEmpresa = Usuarios::select('idempresa')->where('id', $idusuario)->get();
        //select * from reparaciones where idusuario in (select id from usuarios where idempresa = 1);
-        $reparacionesEmpresa=Reparaciones::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->get();
+        $reparacionesEmpresa=Reparaciones::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->orderBy('id', 'ASC')->get();
         if(sizeof($reparacionesEmpresa)<=0)//No encontro el reparaciones
             return response()->json(['Error' => 'No existen reparaciones para esa empresa aun.','Id de usario pasado'=>$idusuario,'Id de empresa obtenido'=>$idEmpresa[0]['idempresa']], 202);
             

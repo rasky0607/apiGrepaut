@@ -74,7 +74,7 @@ class FacturasController extends Controller
             return response()->json(['Message' => 'Reparacion con id ' . $idreparacion . ' facturada con exito.', 'factura' => $factura], 200);
         } else {
             $factura = Facturas::where('idreparacion', $idreparacion)->first();
-            return response()->json(['Error' => 'Reparacion con id ' . $idreparacion . ' ya esta facturada.', 'factura' => $factura], 202);
+            return response()->json(['Error' => 'Reparacion con id ' . $idreparacion . ' ya esta facturada o no tiene servicios asociados.', 'factura' => $factura], 202);
         }
     }
 
@@ -176,7 +176,10 @@ class FacturasController extends Controller
      */
     function anularFactura($idreparacionParaAnular)
     {
-       $estadoFactura = Facturas::select('estado')->where('idreparacion', $idreparacionParaAnular)->first();
+    
+       //$estadoFactura = Facturas::select('estado')->where('idreparacion', $idreparacionParaAnular)->first();
+        $estadoFactura=Facturas::select('estado')->where('idreparacion',$idreparacionParaAnular)->first();
+        
         //comprobamos si la factura no fue ya anulada antes
         if($estadoFactura['estado'] == 'vigente')
             {
@@ -284,8 +287,21 @@ class FacturasController extends Controller
     function comprobacionReparacionNoFacturada($idreparacion)
     {
         $reparacion = Reparaciones::select('estadoReparacion')->where('id', $idreparacion)->first();
-        if ($reparacion['estadoReparacion'] == FacturasController::reparacionNoFacturado) //No esta facturada, ya que la consulta devuelve un valor
-            return true;
+        //No esta facturada, ya que la consulta devuelve un valor
+        if ($reparacion['estadoReparacion'] == FacturasController::reparacionNoFacturado) {
+                $serviciosDeReparacion = Serviciosreparaciones::where('idreparacion', $idreparacion)->get();
+                
+                //Si no tiene aun servicios asociados la reparacion, no se puede facturar dicha repracion
+                if(sizeof($serviciosDeReparacion)<=0){
+                    //dd("bad");
+                    return false;
+                }
+                else {
+                    //dd("yeah");
+                    return true;
+                }
+            }
+            
 
         return false; //Ya esta facturada, ya que la consulta no devuelve un valor
     }
