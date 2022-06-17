@@ -147,7 +147,7 @@ class UsuariosEmpresasController extends Controller
     if (sizeof($usuariosEmpresas->get()) > 0) //Si existe un registro con esos ids 
     {
       $tipoUsuario = $request->tipoUsuario;
-      $permisoEscritura = $request->permisoEscritura;
+      $permisoEscritura = $request->estado;
       $respuesta = array(); //Campos que fueron modificados
 
       if (!is_null($tipoUsuario)) {

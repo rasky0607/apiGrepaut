@@ -91,20 +91,20 @@ class ClientesController extends Controller
     function buscarCliente($idEmpresa, $nombre, $apellido = null) {
         //dd('idEmpresa',$idEmpresa, ' nombre',$nombre,' apellidos',$apellidos);
         if (is_null($apellido)) {
-            $result = Clientes::where('empresa', $idEmpresa)->where('nombre', 'like', urlencode($nombre) . '%')->get();
+            $result = Clientes::where('empresa', $idEmpresa)->where('nombre', 'like', '%'.urlencode($nombre) . '%')->get();
 
             if (sizeof($result) <= 0) //Si NO encontro resultados
-                return response()->json(['msg', 'No se encontron clientes con el nombre indicado ', 'nombre' => urlencode($nombre)], 202);
+                return response()->json(['message'=> 'No se encontron clientes con el nombre indicado ', 'nombre' => urlencode($nombre)], 202);
 
-            return response()->json(['msg', 'Cliente encontrado' => $result], 201);
+            return response()->json( $result, 201);
         } else {
             //app('db')->enableQueryLog();//Activar registro de querys   
-            $result = Clientes::where('empresa', $idEmpresa)->where('nombre', 'like', urlencode($nombre) . '%')->where('apellido', 'like', urlencode($apellido) . '%')->get();
+            $result = Clientes::where('empresa', $idEmpresa)->where('nombre', 'like', urlencode($nombre) . '%')->where('apellido', 'like', '%'.urlencode($apellido) . '%')->get();
             //dd(app('db')->getQueryLog());
             if (sizeof($result) <= 0) //Si NO encontro resultados
-                return response()->json(['msg', 'No se encontron clientes con el nombre y apellidos indicados ', 'nombre' => urlencode($nombre), 'apellidos' => urlencode($apellido)], 202);
+                return response()->json(['message'=> 'No se encontron clientes con el nombre y apellidos indicados ', 'nombre' => urlencode($nombre), 'apellidos' => urlencode($apellido)], 202);
 
-            return response()->json(['msg', 'Cliente encontrado' => $result], 201);
+            return response()->json($result, 201);
         }
     }
 

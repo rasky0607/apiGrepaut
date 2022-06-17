@@ -1,4 +1,20 @@
 <?php
+
+/*
+ ###### PENDIENTE  DE HACER #########
+        --------------------
+ 
+ - 1.0 Añadir seccion de administradores, donde dar de baja y crear usuarios
+ - 1.1 Añadir sección de busqueda de en listados de usuarios para los Admin (En la seccion donde crean los usuarios 1.0)
+ 
+ - 2.0 Crear vista de factura real del cliente.
+ - 2.1 Descargar vista de factura real del cliente en PDF.
+ 
+ - 3.0 Sección de Admin, donde pueden subir logo de la empresa y cambiar detalles.
+ - 3.1 Añadir logo de la empresa a la factura a descargar por el cliente (2.1).
+ 
+ */
+
 /*
 -Ejemplos de como hacer Joins:
     $usuariosEmpresas = Usuariosempresas::select('usuarios.id as idUsuario', 'usuarios.email', 'usuariosempresas.empresa', 'usuariosempresas.tipoUsuario', 'usuariosempresas.permisoEscritura')

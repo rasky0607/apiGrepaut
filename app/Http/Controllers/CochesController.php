@@ -37,7 +37,11 @@ class CochesController extends Controller {
      * @return [json]
      */
     function list() {
+        /*$listCoches = Coches::select('coches.id','coches.matricula','coches.idcliente','clientes.nombre','clientes.apellido','coches.modelo','coches.marca')->join('clientes','clientes.id','=','coches.idcliente')->get();
+        return response()->json($listCoches);*/
+        
         return response()->json(Coches::all());
+        
     }
 
     /**
@@ -67,13 +71,31 @@ class CochesController extends Controller {
      * @return [json]
      */
     function cochesDeClientesDeUnaEmpresa($idEmpresa) {
-        //Ejemplo sql= select * from coches where idCliente in(select id from clientes where empresa=1); 
-        $coches=Coches::select()->whereIn('idcliente', Clientes::select('id')->where('empresa', $idEmpresa)->get())->get();
-        if(sizeof($coches)<=0)//No encontro el cliente 
-            return response()->json(['Error' => 'No existe coches registrados para los clientes de la empresa indicada.', 'Id de empresa' => $idEmpresa], 202);
         
-        return response()->json($coches);
-        //return response()->json(Coches::select()->whereIn('idcliente', Clientes::select('id')->where('empresa', $idEmpresa)->get())->get());
+        //Mezclamos los id de clientes de la tabla coches con los nombre de dichos clientesl en base a a una empresa
+
+        //select coches.id,coches.matricula,coches.idcliente,clientes.nombre,clientes.apellido,coches.modelo,coches.marca from coches join clientes on clientes.id = coches.idcliente and clientes.empresa=1;
+        $listCoches = Coches::select('coches.id','coches.matricula','coches.idcliente','clientes.nombre','clientes.apellido','coches.modelo','coches.marca')->join('clientes','clientes.id','=','coches.idcliente')->where('clientes.empresa', $idEmpresa)->get();
+
+        return response()->json($listCoches);       
+    }
+
+    //Busca coches de una empresa que empiezan por una determinada matricula
+    function buscarCochesDeClientesDeUnaEmpresa($idEmpresa,$matricula) {
+        
+        //Mezclamos los id de clientes de la tabla coches con los nombre de dichos clientesl en base a a una empresa y que coincide con una matricula
+        //select coches.id,coches.matricula,coches.idcliente,clientes.nombre,clientes.apellido,coches.modelo,coches.marca from coches join clientes on clientes.id = coches.idcliente and coches.matricula = 'T893J' and clientes.empresa=1;
+        $listCoches = Coches::select('coches.id','coches.matricula','coches.idcliente','clientes.nombre','clientes.apellido','coches.modelo','coches.marca')->join('clientes','clientes.id','=','coches.idcliente')->where('clientes.empresa', $idEmpresa)->where('coches.matricula','like', urlencode($matricula) . '%')->get();
+        return response()->json($listCoches);
+    }
+
+     //Busca coches de una empresa que empiezan que tengan una matricula concreta, ya que no deberia haber dos coches en una empresa con la misma matricula
+    function comprobarCocheExistenteEnUnaEmpresa($idEmpresa,$matricula) {      
+        //Mezclamos los id de clientes de la tabla coches con los nombre de dichos clientesl en base a a una empresa y que coincide con una matricula
+        //select coches.id,coches.matricula,coches.idcliente,clientes.nombre,clientes.apellido,coches.modelo,coches.marca from coches join clientes on clientes.id = coches.idcliente and coches.matricula = 'T893J' and clientes.empresa=1;
+    
+        $listCoches = Coches::select('coches.id','coches.matricula','coches.idcliente','clientes.nombre','clientes.apellido','coches.modelo','coches.marca')->join('clientes','clientes.id','=','coches.idcliente')->where('clientes.empresa', $idEmpresa)->where('coches.matricula', $matricula)->get();
+        return response()->json($listCoches);
     }
 
 

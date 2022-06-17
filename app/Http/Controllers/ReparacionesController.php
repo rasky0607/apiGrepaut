@@ -58,8 +58,17 @@ class ReparacionesController extends Controller {
      */
     function listReparacionesEmpresa($idusuario) {
         $idEmpresa = Usuarios::select('idempresa')->where('id', $idusuario)->get();
+
+        //NUEVA FOMRA query con el nombre de tecnico y la matricula del vehiculo 
+        //select t1.id,t1.idusuario,usuarios.nombre,t1.estadoReparacion,t1.idcoche,t1.matricula,t1.idcliente,t1.marca,t1.modelo from (select reparaciones.id,reparaciones.idusuario,reparaciones.estadoReparacion,reparaciones.idcoche,coches.matricula,coches.idcliente,coches.marca,coches.modelo from reparaciones join coches on reparaciones.idcoche = coches.id where idusuario in (select id from usuarios where idempresa = 1)) as t1 join usuarios on t1.idusuario = usuarios.id;      
+        
+        $query = "select t1.id,t1.idusuario,usuarios.nombre as nombreTecnico,t1.estadoReparacion,t1.idcoche,t1.matricula,t1.idcliente,t1.marca,t1.modelo from (select reparaciones.id,reparaciones.idusuario,reparaciones.estadoReparacion,reparaciones.idcoche,coches.matricula,coches.idcliente,coches.marca,coches.modelo from reparaciones join coches on reparaciones.idcoche = coches.id where idusuario in (select id from usuarios where idempresa = ".$idEmpresa[0]['idempresa'].")) as t1 join usuarios on t1.idusuario = usuarios.id order by t1.id desc";
+        $reparacionesEmpresa = app('db')->select($query);
+
+        //VIEJA FORMA
        //select * from reparaciones where idusuario in (select id from usuarios where idempresa = 1);
-        $reparacionesEmpresa=Reparaciones::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->orderBy('id', 'ASC')->get();
+        //$reparacionesEmpresa=Reparaciones::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->orderBy('id', 'ASC')->get();
+
         if(sizeof($reparacionesEmpresa)<=0)//No encontro el reparaciones
             return response()->json(['Error' => 'No existen reparaciones para esa empresa aun.','Id de usario pasado'=>$idusuario,'Id de empresa obtenido'=>$idEmpresa[0]['idempresa']], 202);
             
@@ -245,6 +254,21 @@ class ReparacionesController extends Controller {
          }    
 
         return false;
+    }
+
+    //Busca reparaciones de una empresa en base ala matricula
+    function buscarListReparacionesEmpresa($idEmpresa,$cadena) {      
+
+        //NUEVA FOMRA query con el nombre de tecnico y la matricula del vehiculo 
+        //select t1.id,t1.idusuario,usuarios.nombre,t1.estadoReparacion,t1.idcoche,t1.matricula,t1.idcliente,t1.marca,t1.modelo from (select reparaciones.id,reparaciones.idusuario,reparaciones.estadoReparacion,reparaciones.idcoche,coches.matricula,coches.idcliente,coches.marca,coches.modelo from reparaciones join coches on reparaciones.idcoche = coches.id where idusuario in (select id from usuarios where idempresa = 1)) as t1 join usuarios on t1.idusuario = usuarios.id;      
+        
+        $query = "select t1.id,t1.idusuario,usuarios.nombre as nombreTecnico,t1.estadoReparacion,t1.idcoche,t1.matricula,t1.idcliente,t1.marca,t1.modelo from (select reparaciones.id,reparaciones.idusuario,reparaciones.estadoReparacion,reparaciones.idcoche,coches.matricula,coches.idcliente,coches.marca,coches.modelo from reparaciones join coches on reparaciones.idcoche = coches.id where idusuario in (select id from usuarios where idempresa = ".$idEmpresa.")) as t1 join usuarios on t1.idusuario = usuarios.id  where t1.matricula like '%".$cadena."%' order by t1.id desc";
+        $reparacionesEmpresa = app('db')->select($query);
+
+        if(sizeof($reparacionesEmpresa)<=0)//No encontro el reparaciones
+            return response()->json(['Error' => 'No existen reparaciones para esa empresa aun, con matricula'.$cadena], 202);
+            
+        return response()->json($reparacionesEmpresa);
     }
 
 }

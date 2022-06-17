@@ -17,7 +17,7 @@ class CreateTableFacturas extends Migration
     {
         Schema::create('facturas', function (Blueprint $table) {
             $table->bigInteger('numerofactura', false, true)->unsigned();//autoincremental(clave primaria)
-            $table->bigInteger('idreparacion', false, true)->unsigned();//Clave ajena de propadaga de la tabla reparaciones(clave primaria) gracias a la cual identificamos las facturas de las diferentes empresas
+            $table->bigInteger('idreparacion', false, false)->unsigned();//Clave ajena de propadaga de la tabla reparaciones(clave primaria) gracias a la cual identificamos las facturas de las diferentes empresas
             //$table->bigInteger('idempresa', false, false)->unsigned();
             $table->bigInteger('idusuario', false, false)->unsigned();
             $table->date('fecha');

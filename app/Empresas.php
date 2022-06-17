@@ -22,7 +22,7 @@ class Empresas extends Model implements AuthenticatableContract, AuthorizableCon
      * @var array
      */
     protected $fillable = [
-        'id','nombre','direccion', 'tlf'
+        'id','nombre','direccion', 'tlf','logoempresa'
     ];
 
     /**

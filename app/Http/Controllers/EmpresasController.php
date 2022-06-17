@@ -59,6 +59,20 @@ class EmpresasController extends Controller {
         else
             return response()->json(['Empresa' => $empresa], 200);
     }
+    
+    /**
+     * @param mixed $id
+     * BUsca un empresa pasando su id por parametro y la devuelve
+     * @return [json]
+     */
+    function buscarEmpresaPorID($id) {
+        $empresa = Empresas::where('id',$id)->get();
+        if (sizeof($empresa) <= 0) {
+            return response()->json(['message' => 'No existe esta empresa'], 202);
+        }
+        //Si encontro una empresa
+        return response()->json(['Empresa' => $empresa], 200);
+    }
 
     /**
      * @param mixed $id
@@ -86,6 +100,7 @@ class EmpresasController extends Controller {
         $nombre = $request->nombre;
         $direccion = $request->direccion;
         $tlf = $request->tlf;
+        $logoempresa = $request->logo;
 
         if (!is_null($tlf)) {
             if (!Utils::validarTlf($tlf)) //Comprobacion de numero de Tlf
@@ -113,8 +128,34 @@ class EmpresasController extends Controller {
             ]);
             array_push($respuesta, 'Tlf ');
         }
+
+        if (!is_null($logoempresa)) {
+            $empresa->update([
+                'logoempresa' => $logoempresa
+            ]);
+            array_push($respuesta, 'logoempresa ');
+        }
+
+
         return response()->json(['message' => 'Empresa actualizada con exito', 'Modificaciones' => $respuesta, 'Empresa' => $empresa], 200);
     }
+
+    function updateLogo($id,$logoempresa) {
+        $empresa = Empresas::findOrFail($id);
+        //dd($request->logo);
+        //$logoempresa = $request->logo;
+
+        $respuesta = array(); //Campos que fueron modificados
+        if (!is_null($logoempresa)) {
+            $empresa->update([
+                'logoempresa' => $logoempresa
+            ]);
+            array_push($respuesta, 'logoempresa ');
+        }
+        return response()->json(['message' => 'Empresa actualizada con exito', 'Modificaciones' => $respuesta, 'Empresa' => $empresa], 200);
+    }
+
+
 
     
 }

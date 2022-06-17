@@ -23,6 +23,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/', ['uses'=> 'UsuariosController@list']);
         $router->get('/empresa/{idempresa}', ['uses'=> 'UsuariosController@usuariosEmpresa']);
         $router->post('/buscar', ['uses'=> 'UsuariosController@buscarUsuario']);
+        $router->get('/buscarporid/{id}', ['uses'=> 'UsuariosController@buscarUsuarioPorID']);//Nuevo
         $router->get('/logout/{id}', ['uses'=> 'UsuariosController@logout']);
         $router->delete('/{id}', ['uses'=> 'UsuariosController@delete']);
         $router->put('/{id}', ['uses'=> 'UsuariosController@update']);
@@ -36,10 +37,13 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->post('/buscar', ['uses'=> 'EmpresasController@buscarEmpresa']);
         $router->delete('/{id}', ['uses'=> 'EmpresasController@delete']);
         $router->put('/{id}', ['uses'=> 'EmpresasController@update']);
+        $router->put('/updateLogo/{id}/{logoempresa}', ['uses'=> 'EmpresasController@updateLogo']);
+        $router->get('/{id}', ['uses'=> 'EmpresasController@buscarEmpresaPorID']);
+        
         
     });
 
-      //Tabla UsuariosEmpresas 
+      //Tabla UsuariosEmpresas ELIMINADA DE LA ESTRUCTURA DE LA BD
       //[PENDIENTE]-> comprobar que el usuario que accede ha esta tabla sea de tipo Admin (puede ser desde la api o con un trigger en la BD cuadno haga cambios)
       /*$router->group(['prefix' => 'usuariosempresas'], function () use ($router) {
         $router->post('/', ['uses'=> 'UsuariosEmpresasController@add']);
@@ -75,6 +79,8 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/', ['uses'=> 'CochesController@list']);
         $router->get('/cliente/{idCliente}', ['uses'=> 'CochesController@cochesDeUnCliente']);
         $router->get('/empresa/{idEmpresa}', ['uses'=> 'CochesController@cochesDeClientesDeUnaEmpresa']);
+        $router->get('/empresa/{idEmpresa}/{matricula}', ['uses'=> 'CochesController@buscarCochesDeClientesDeUnaEmpresa']);
+        $router->get('/empresa/comprobar/{idEmpresa}/{matricula}', ['uses'=> 'CochesController@comprobarCocheExistenteEnUnaEmpresa']);
         $router->get('/datos/{id}', ['uses'=> 'CochesController@unCoche']);
         $router->delete('/{id}', ['uses'=> 'CochesController@delete']);
         $router->put('/{id}', ['uses'=> 'CochesController@update']);
@@ -99,6 +105,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/usuario/{usuario}', ['uses'=> 'ReparacionesController@listReparacionesUsuario']);
         $router->get('/coche/{idcoche}', ['uses'=> 'ReparacionesController@reparacionesDeUnChoche']);
         $router->get('/empresa/{idusuario}', ['uses'=> 'ReparacionesController@listReparacionesEmpresa']);
+        $router->get('/empresa/buscar/{idEmpresa}/{cadena}', ['uses'=> 'ReparacionesController@buscarListReparacionesEmpresa']);
         $router->delete('/{id}', ['uses'=> 'ReparacionesController@delete']);
         $router->put('/{id}', ['uses'=> 'ReparacionesController@update']);
         
@@ -122,6 +129,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
         $router->get('/', ['uses'=> 'FacturasController@list']);
         $router->get('/lineasfactura/{idreparacion}', ['uses'=> 'FacturasController@lineasFactura']);
         $router->get('/empresa/{idusuario}', ['uses'=> 'FacturasController@listFacturasEmpresa']);
+        $router->get('/empresa/buscar/{idEmpresa}/{cadena}', ['uses'=> 'FacturasController@filtradoListFacturasEmpresa']);
         $router->get('/vigentes/empresa/{idusuario}', ['uses'=> 'FacturasController@listFacturasEmpresaVigentes']);
         $router->put('/anularlareparacion/{idreparacionParaAnular}', ['uses'=> 'FacturasController@anularFactura']);
         

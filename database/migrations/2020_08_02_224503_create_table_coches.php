@@ -16,7 +16,7 @@ class CreateTableCoches extends Migration
         Schema::create('coches', function (Blueprint $table) {
             $table->id();
             $table->string('matricula');
-            $table->bigInteger('idcliente',false,false)->unsigned();//Clave primaria
+            $table->bigInteger('idcliente',false,true)->unsigned();//Clave primaria
             $table->string('modelo');
             $table->string('marca');//Creamos columna para la clave ajena
             $table->timestamps();

@@ -63,7 +63,7 @@ class ServiciosController extends Controller
     function buscarUnServicio($idEmpresa,$nombre) {
         $servicio = Servicios::where('empresa',$idEmpresa)->where('nombre','like','%'.urldecode($nombre).'%')->get();
         if(sizeof($servicio)>0)
-            return response()->json(['message'=>'Servicios similares encontrados:','Servicios'=>$servicio],200);
+            return response()->json($servicio,200);
 
         return response()->json(['Error'=>'No se encontraron Servicios similares:'],202);
     }

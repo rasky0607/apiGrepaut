@@ -93,8 +93,14 @@ class FacturasController extends Controller
      */
     function listFacturasEmpresa($idusuario) {
         $idEmpresa = Usuarios::select('idempresa')->where('id', $idusuario)->get();
+        //NUEVA FORMA
+        //----//
+        $query = "select facturas.numerofactura, facturas.estado,facturas.numerofacturanulada,facturas.idreparacionanulada,facturas.fecha,t3.idreparacion, t3.idusuario, t3.nombreTecnico, t3.idcoche ,t3.matricula, t3.marca, t3.modelo ,t3.idcliente,t3.nombre from (select t2.id as idreparacion, t2.idusuario, t2.nombre as nombreTecnico, t2.idcoche ,t2.matricula, t2.marca, t2.modelo ,t2.idcliente,clientes.nombre from (select t1.id,t1.idusuario,usuarios.nombre,t1.estadoReparacion,t1.idcoche,t1.matricula,t1.idcliente,t1.marca,t1.modelo from (select reparaciones.id,reparaciones.idusuario,reparaciones.estadoReparacion,reparaciones.idcoche,coches.matricula,coches.idcliente,coches.marca,coches.modelo from reparaciones join coches on reparaciones.idcoche = coches.id where idusuario in (select id from usuarios where idempresa = ".$idEmpresa[0]['idempresa'].")) as t1 join usuarios on t1.idusuario = usuarios.id) as t2 join clientes on t2.idcliente = clientes.id) as t3 join facturas on t3.idreparacion = facturas.idreparacion order by facturas.numerofactura desc";
+        $facturasEmpresa = app('db')->select($query);
+        //---//
+        //VIEJA FORMA
         //select * from facturas where idusuario in (select id from usuarios where idempresa = 1);
-        $facturasEmpresa=Facturas::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->get();
+        //$facturasEmpresa=Facturas::whereIn('idusuario',Usuarios::select('id')->where('idempresa',$idEmpresa[0]['idempresa']))->get();
         if(sizeof($facturasEmpresa)<=0)
             return response()->json(['Error' => 'No hay facturas resgistradas aun en la empresa con id '.$idEmpresa[0]['idempresa']], 202);
         return response()->json($facturasEmpresa, 200);
@@ -318,4 +324,16 @@ class FacturasController extends Controller
             'estadoReparacion' => FacturasController::reparacionFacturado
         ]);
     }
+
+    //Busca una facturas de una empresa en base a una matricula
+    function filtradoListFacturasEmpresa($idEmpresa,$cadena) {
+        $query = "select facturas.numerofactura, facturas.estado,facturas.numerofacturanulada,facturas.idreparacionanulada,facturas.fecha,t3.idreparacion, t3.idusuario, t3.nombreTecnico, t3.idcoche ,t3.matricula, t3.marca, t3.modelo ,t3.idcliente,t3.nombre from (select t2.id as idreparacion, t2.idusuario, t2.nombre as nombreTecnico, t2.idcoche ,t2.matricula, t2.marca, t2.modelo ,t2.idcliente,clientes.nombre from (select t1.id,t1.idusuario,usuarios.nombre,t1.estadoReparacion,t1.idcoche,t1.matricula,t1.idcliente,t1.marca,t1.modelo from (select reparaciones.id,reparaciones.idusuario,reparaciones.estadoReparacion,reparaciones.idcoche,coches.matricula,coches.idcliente,coches.marca,coches.modelo from reparaciones join coches on reparaciones.idcoche = coches.id where idusuario in (select id from usuarios where idempresa = ".$idEmpresa.")) as t1 join usuarios on t1.idusuario = usuarios.id) as t2 join clientes on t2.idcliente = clientes.id) as t3 join facturas on t3.idreparacion = facturas.idreparacion where t3.matricula like '%".$cadena."%' order by facturas.numerofactura desc";
+        $facturasEmpresa = app('db')->select($query);
+
+        if(sizeof($facturasEmpresa)<=0)
+            return response()->json(['Error' => 'No hay facturas resgistradas aun en la empresa con id '.$idEmpresa.' y la cadena '.$cadena], 202);
+        return response()->json($facturasEmpresa, 200);
+    }
+
+
 }

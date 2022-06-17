@@ -33,6 +33,7 @@ class UsuariosController extends Controller
             'email' => $request->email,
             'password' => $request->password,
             'nombre' => $request->nombre,
+            'tipo' => 'user',
             'idempresa' => $request->idempresa,
             'token' => Str::random(10)
         ]);
@@ -49,13 +50,21 @@ class UsuariosController extends Controller
         $password =$request->password;
         //$user= Usuarios::select('id')->where('email', $email)->where('password', $password)->get();
         $user= Usuarios::where('email', $email)->where('password', $password)->get();
+        
+        //comprueba si elusuario esta deshabilitado (simula el borrado de un usuario )
+        if($user[0]['estado']=='disable'){
+            return response()->json(['message' => 'User deshabilitado'],202);
+        }
         if (sizeof($user)== 1) //Logeo correcto
         {   //Obtenemos el id del usuario
             $id = $user[0]['id'];
+            $nombre = $user[0]['nombre'];
             $idempresa = $user[0]['idempresa'];
+            $tipo = $user[0]['tipo'];
+            $pathUserLogo = $user[0]['logousuario'];
             //Actualizamos/guardamnos el nuevo token en la BD
             $token= $this->actualizarToken($id);
-            return response()->json(['message' => 'Credenciales correctas','idempresa'=>$idempresa,'id'=>$id,'token'=>$token],200);
+            return response()->json(['message' => 'Credenciales correctas','idempresa'=>$idempresa,'id'=>$id,'nombre'=>$nombre,'token'=>$token,'tipo'=>$tipo,'pathUserLogo'=>$pathUserLogo],200);
         } else {
             //Email o contraseña incorrectas
             return response()->json(['message' => 'Email o Password incorrecto'],202);
@@ -91,12 +100,27 @@ class UsuariosController extends Controller
         return response()->json(Usuarios::all());
     }
     
-    //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada
+    /*
+     * Devuelve el tipo de usuario en funcion de su id
+     *@return [Json]
+     */
+   /* function tipoUsuario($id){
+        $usuario = Usuarios::select->('tipo')->where('id', id)->get();
+        
+        if (sizeof($usuario) <= 0) {
+            return response()->json(['Error' => 'No existe el usuario par esa empresa'], 202);
+        } else {
+            return response()->json($usuario, 200);
+        }
+        
+    }*/
+    
+    //Busca un usuario concreto que pertenezca a una empresa determinada y son de tipo USER
     function usuariosEmpresa($idempresa) {
         //echo $email;
         //return;
         //app('db')->enableQueryLog(); //Activar registro de querys
-        $usuario = Usuarios::where('idempresa', $idempresa)->get();
+        $usuario = Usuarios::where('idempresa', $idempresa)->where('tipo', 'user')->get();
         //$query = dd(app('db')->getQueryLog());
         
         if (sizeof($usuario) <= 0) {
@@ -106,20 +130,37 @@ class UsuariosController extends Controller
         }
     }
 
-    //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada
+
+    //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada y de tipo user
     function buscarUsuario(Request $request) {
         $email = $request->email;
         $idempresa = $request->idempresa;
         //echo $email;
         //return;
         //app('db')->enableQueryLog(); //Activar registro de querys
-        $usuario = Usuarios::where('email', 'like', '%'.urldecode($email) . '%')->where('idempresa',$idempresa)->get();
+        $usuario = Usuarios::where('email', 'like', '%'.urldecode($email) . '%')->where('idempresa',$idempresa)->where('tipo','user')->get();
         //$query = dd(app('db')->getQueryLog());
         
         if (sizeof($usuario) <= 0) {
             return response()->json(['message' => 'No existe el usuario', 'Usuario con email:' => urldecode($email)], 202);
         } else {
-            return response()->json(['Usuario:' => $usuario], 200);
+            return response()->json($usuario, 200);
+        }
+    }
+    
+    //Busca un usuario concreto o con correos que empiecen igual al indicado y pertenezca a una empresa determinada
+    function buscarUsuarioPorID(Request $request) {
+        $idusuario = $request->id;
+        //echo $email;
+        //return;
+        //app('db')->enableQueryLog(); //Activar registro de querys
+        $usuario = Usuarios::where('id',$idusuario)->get();
+        //$query = dd(app('db')->getQueryLog());
+        
+        if (sizeof($usuario) <= 0) {
+            return response()->json(['message' => 'No existe el usuario', 'Usuario con ese ID:' => $idusuario], 202);
+        } else {
+            return response()->json(['usuario' => $usuario], 200);
         }
     }
 
@@ -150,8 +191,11 @@ class UsuariosController extends Controller
         $user = Usuarios::findOrFail($id);
         $email = $request->email;
         $nombre = $request->nombre;
+        $tipo = $request->tipo;//Nuevo
         $password = $request->password;
         $idempresa = $request->idempresa;
+        $estado = $request->estado;
+
         $respuesta=array(); //Campos que fueron modificados
         if (!is_null($email)) {
             if (!Utils::validarcorreo($email))
@@ -168,6 +212,14 @@ class UsuariosController extends Controller
             ]);
             array_push($respuesta,'Nombre');
         }
+        
+        //NUEVO
+        if (!is_null($tipo)) {
+            $user->update([
+                'tipo' => $tipo
+            ]);
+            array_push($respuesta, 'tipo');
+        }
 
         if (!is_null($password)) {
             $user->update([
@@ -181,6 +233,13 @@ class UsuariosController extends Controller
                 'idempresa' => $idempresa
             ]);
             array_push($respuesta, 'idempresa');
+        }
+
+        if (!is_null($estado)) {
+            $user->update([
+                'estado' => $estado
+            ]);
+            array_push($respuesta, 'estado');
         }
 
 
